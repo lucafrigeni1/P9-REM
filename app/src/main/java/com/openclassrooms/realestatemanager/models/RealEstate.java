@@ -1,26 +1,426 @@
 package com.openclassrooms.realestatemanager.models;
 
-import java.util.Date;
+import androidx.annotation.NonNull;
+import androidx.room.Entity;
+import androidx.room.PrimaryKey;
 
+import java.util.Comparator;
+import java.util.List;
+
+@Entity(tableName = "realEstate")
 public class RealEstate {
 
-    //list?
-    String type;
-
-    //list?
-    String pointOfInterest;
-
+    @PrimaryKey()
+    @NonNull
+    String id;
+    String type, descriptions;
+    String mainPhoto;
     double price;
-    double surface;
-    int rooms;
-    String descriptions;
-    String adress;
     boolean isSold;
-    Date recordDate;
-    Date saleDate;
+    double surface;
+    List<RoomsPhotos> roomsPhotosList;
+    int rooms, bathrooms, bedrooms;
+    List<String> pointsOfInterest;
+    String street, city, postalCode, country;
+    double latitude, longitude;
+    String recordDate, saleDate;
     String estateAgent;
 
-    //Au moins une photo, avec une description associée.
-    //Vous devez gérer le cas où plusieurs photos sont présentes pour un bien !
-    //La photo peut être récupérée depuis la galerie photos du téléphone, ou prise directement avec l'équipement ;
+    public RealEstate(String id,
+                      String type,
+                      String descriptions,
+                      String mainPhoto,
+                      double price,
+                      boolean isSold,
+                      double surface,
+                      List<RoomsPhotos> roomsPhotosList,
+                      int rooms,
+                      int bathrooms,
+                      int bedrooms,
+                      List<String> pointsOfInterest,
+                      String street,
+                      String city,
+                      String postalCode,
+                      String country,
+                      double latitude,
+                      double longitude,
+                      String recordDate,
+                      String saleDate,
+                      String estateAgent) {
+        this.id = id;
+        this.type = type;
+        this.descriptions = descriptions;
+        this.mainPhoto = mainPhoto;
+        this.price = price;
+        this.isSold = isSold;
+        this.surface = surface;
+        this.roomsPhotosList = roomsPhotosList;
+        this.rooms = rooms;
+        this.bathrooms = bathrooms;
+        this.bedrooms = bedrooms;
+        this.pointsOfInterest = pointsOfInterest;
+        this.street = street;
+        this.city = city;
+        this.postalCode = postalCode;
+        this.country = country;
+        this.latitude = latitude;
+        this.longitude = longitude;
+        this.recordDate = recordDate;
+        this.saleDate = saleDate;
+        this.estateAgent = estateAgent;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public String getDescriptions() {
+        return descriptions;
+    }
+
+    public void setDescriptions(String descriptions) {
+        this.descriptions = descriptions;
+    }
+
+    public String getMainPhoto() {
+        return mainPhoto;
+    }
+
+    public void setMainPhoto(String mainPhoto) {
+        this.mainPhoto = mainPhoto;
+    }
+
+    public double getPrice() {
+        return price;
+    }
+
+    public void setPrice(double price) {
+        this.price = price;
+    }
+
+    public boolean isSold() {
+        return isSold;
+    }
+
+    public void setSold(boolean sold) {
+        isSold = sold;
+    }
+
+    public double getSurface() {
+        return surface;
+    }
+
+    public void setSurface(double surface) {
+        this.surface = surface;
+    }
+
+    public List<RoomsPhotos> getRoomsPhotosList() {
+        return roomsPhotosList;
+    }
+
+    public void setRoomsPhotosList(List<RoomsPhotos> roomsPhotosList) {
+        this.roomsPhotosList = roomsPhotosList;
+    }
+
+    public int getRooms() {
+        return rooms;
+    }
+
+    public void setRooms(int rooms) {
+        this.rooms = rooms;
+    }
+
+    public int getBathrooms() {
+        return bathrooms;
+    }
+
+    public void setBathrooms(int bathrooms) {
+        this.bathrooms = bathrooms;
+    }
+
+    public int getBedrooms() {
+        return bedrooms;
+    }
+
+    public void setBedrooms(int bedrooms) {
+        this.bedrooms = bedrooms;
+    }
+
+    public List<String> getPointsOfInterest() {
+        return pointsOfInterest;
+    }
+
+    public void setPointsOfInterest(List<String> pointsOfInterest) {
+        this.pointsOfInterest = pointsOfInterest;
+    }
+
+    public String getStreet() {
+        return street;
+    }
+
+    public void setStreet(String street) {
+        this.street = street;
+    }
+
+    public String getCity() {
+        return city;
+    }
+
+    public void setCity(String city) {
+        this.city = city;
+    }
+
+    public String getPostalCode() {
+        return postalCode;
+    }
+
+    public void setPostalCode(String postalCode) {
+        this.postalCode = postalCode;
+    }
+
+    public String getCountry() {
+        return country;
+    }
+
+    public void setCountry(String country) {
+        this.country = country;
+    }
+
+    public double getLatitude() {
+        return latitude;
+    }
+
+    public void setLatitude(double latitude) {
+        this.latitude = latitude;
+    }
+
+    public double getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(double longitude) {
+        this.longitude = longitude;
+    }
+
+    public String getRecordDate() {
+        return recordDate;
+    }
+
+    public void setRecordDate(String recordDate) {
+        this.recordDate = recordDate;
+    }
+
+    public String getSaleDate() {
+        return saleDate;
+    }
+
+    public void setSaleDate(String saleDate) {
+        this.saleDate = saleDate;
+    }
+
+    public String getEstateAgent() {
+        return estateAgent;
+    }
+
+    public void setEstateAgent(String estateAgent) {
+        this.estateAgent = estateAgent;
+    }
+
+    public static class Builder {
+        String id;
+        String type, descriptions;
+        String mainPhoto;
+        double price;
+        boolean isSold;
+        double surface;
+        List<RoomsPhotos> roomsPhotosList;
+        int rooms, bathrooms, bedrooms;
+        List<String> pointsOfInterest;
+        String street, city, postalCode, country;
+        double latitude, longitude;
+        String recordDate, saleDate;
+        String estateAgent;
+
+        public Builder(String id) {
+            this.id = id;
+        }
+
+
+        public Builder type(String type) {
+            this.type = type;
+            return this;
+        }
+
+        public Builder descriptions(String descriptions) {
+            this.descriptions = descriptions;
+            return this;
+        }
+
+        public Builder mainPhoto(String mainPhoto) {
+            this.mainPhoto = mainPhoto;
+            return this;
+        }
+
+        public Builder price(double price) {
+            this.price = price;
+            return this;
+        }
+
+        public Builder isSold(Boolean isSold) {
+            this.isSold = isSold;
+            return this;
+        }
+
+        public Builder surface(double surface) {
+            this.surface = surface;
+            return this;
+        }
+
+        public Builder roomsPhotosList(List<RoomsPhotos> roomsPhotosList) {
+            this.roomsPhotosList = roomsPhotosList;
+            return this;
+        }
+
+        public Builder rooms(int rooms) {
+            this.rooms = rooms;
+            return this;
+        }
+
+        public Builder bathrooms(int bathrooms) {
+            this.bathrooms = bathrooms;
+            return this;
+        }
+
+        public Builder bedrooms(int bedrooms) {
+            this.bedrooms = bedrooms;
+            return this;
+        }
+
+        public Builder pointsOfInterest(List<String> pointsOfInterest) {
+            this.pointsOfInterest = pointsOfInterest;
+            return this;
+        }
+
+        public Builder street(String street) {
+            this.street = street;
+            return this;
+        }
+
+        public Builder city(String city) {
+            this.city = city;
+            return this;
+        }
+
+        public Builder postalCode(String postalCode) {
+            this.postalCode = postalCode;
+            return this;
+        }
+
+        public Builder country(String country) {
+            this.country = country;
+            return this;
+        }
+
+        public Builder latitude(double latitude) {
+            this.latitude = latitude;
+            return this;
+        }
+
+        public Builder longitude(double longitude) {
+            this.longitude = longitude;
+            return this;
+        }
+
+        public Builder recordDate(String recordDate) {
+            this.recordDate = recordDate;
+            return this;
+        }
+
+        public Builder saleDate(String saleDate) {
+            this.saleDate = saleDate;
+            return this;
+        }
+
+        public Builder estateAgent(String estateAgent) {
+            this.estateAgent = estateAgent;
+            return this;
+        }
+
+        public RealEstate build() {
+            RealEstate realEstate = new RealEstate();
+            realEstate.id = this.id;
+            realEstate.type = this.type;
+            realEstate.descriptions = this.descriptions;
+            realEstate.mainPhoto = this.mainPhoto;
+            realEstate.price = this.price;
+            realEstate.isSold = this.isSold;
+            realEstate.surface = this.surface;
+            realEstate.roomsPhotosList = this.roomsPhotosList;
+            realEstate.rooms = this.rooms;
+            realEstate.bathrooms = this.bathrooms;
+            realEstate.bedrooms = this.bedrooms;
+            realEstate.pointsOfInterest = this.pointsOfInterest;
+            realEstate.street = this.street;
+            realEstate.city = this.city;
+            realEstate.postalCode = this.postalCode;
+            realEstate.country = this.country;
+            realEstate.latitude = this.latitude;
+            realEstate.longitude = this.longitude;
+            realEstate.recordDate = this.recordDate;
+            realEstate.saleDate = this.saleDate;
+            realEstate.estateAgent = this.estateAgent;
+
+            return realEstate;
+        }
+    }
+
+    private RealEstate() {
+    }
+
+    public static class PriceComparator implements Comparator<RealEstate> {
+        @Override
+        public int compare(RealEstate o1, RealEstate o2) {
+            return (int) (o1.getPrice() - o2.getPrice());
+        }
+    }
+
+    public static class SurfaceComparator implements Comparator<RealEstate> {
+        @Override
+        public int compare(RealEstate o1, RealEstate o2) {
+            return (int) (o1.getSurface() - o2.getSurface());
+        }
+    }
+
+    public static class RoomsComparator implements Comparator<RealEstate> {
+        @Override
+        public int compare(RealEstate o1, RealEstate o2) {
+            return (int) (o1.getRooms() - o2.getRooms());
+        }
+    }
+
+    public static class BathRoomsComparator implements Comparator<RealEstate> {
+        @Override
+        public int compare(RealEstate o1, RealEstate o2) {
+            return (int) (o1.getBathrooms() - o2.getBathrooms());
+        }
+    }
+
+    public static class BedRoomsComparator implements Comparator<RealEstate> {
+        @Override
+        public int compare(RealEstate o1, RealEstate o2) {
+            return (int) (o1.getBedrooms() - o2.getBedrooms());
+        }
+    }
 }

@@ -1,0 +1,313 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+<androidx.core.widget.NestedScrollView
+    android:id="@+id/bottom_sheet"
+    app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior"
+    app:behavior_hideable="true"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorPrimary900">
+
+<androidx.constraintlayout.widget.ConstraintLayout
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingHorizontal="16dp">
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/validation_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@+id/checkbox"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginBottom="10dp"
+        android:layout_marginEnd="5dp"
+        android:src="@drawable/ic_baseline_check_24" />
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/price_filter_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginTop="16dp"
+        android:text="Price range"
+        android:textStyle="bold"
+        android:textSize="16sp"
+        android:textColor="@color/colorPrimary100"/>
+
+    <com.google.android.material.slider.RangeSlider
+        android:id="@+id/price_filter"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@+id/price_filter_title"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginTop="5dp"
+        android:layout_marginHorizontal="16dp"
+        style="@style/Widget.App.Slider" />
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/surface_filter_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/price_filter"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginTop="16dp"
+        android:text="Surface range"
+        android:textStyle="bold"
+        android:textSize="16sp"
+        android:textColor="@color/colorPrimary100"/>
+
+    <com.google.android.material.slider.RangeSlider
+        android:id="@+id/surface_filter"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@+id/surface_filter_title"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginTop="5dp"
+        android:layout_marginHorizontal="16dp"
+        style="@style/Widget.App.Slider"/>
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/rooms_filter_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/surface_filter"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginTop="16dp"
+        android:text="Rooms"
+        android:textStyle="bold"
+        android:textSize="16sp"
+        android:textColor="@color/colorPrimary100"/>
+
+    <com.google.android.material.slider.RangeSlider
+        android:id="@+id/rooms_filter"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@+id/rooms_filter_title"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginTop="5dp"
+        android:layout_marginHorizontal="16dp"
+        style="@style/Widget.App.Slider"/>
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/bathrooms_filter_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/rooms_filter"
+        app:layout_constraintStart_toStartOf="@id/rooms_filter_title"
+        android:layout_marginTop="16dp"
+        android:text="Bathrooms"
+        android:textStyle="bold"
+        android:textSize="16sp"
+        android:textColor="@color/colorPrimary100"/>
+
+    <com.google.android.material.slider.RangeSlider
+        android:id="@+id/bathrooms_filter"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@+id/bathrooms_filter_title"
+        app:layout_constraintStart_toStartOf="@id/rooms_filter"
+        app:layout_constraintEnd_toStartOf="@id/bedrooms_filter"
+        android:layout_marginTop="5dp"
+        android:layout_marginEnd="16dp"
+        style="@style/Widget.App.Slider"/>
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/bedrooms_filter_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/rooms_filter"
+        app:layout_constraintStart_toEndOf="@id/bathrooms_filter"
+        android:layout_marginTop="16dp"
+        android:text="Bedrooms"
+        android:textStyle="bold"
+        android:textSize="16sp"
+        android:textColor="@color/colorPrimary100"/>
+
+    <com.google.android.material.slider.RangeSlider
+        android:id="@+id/bedrooms_filter"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@+id/bedrooms_filter_title"
+        app:layout_constraintStart_toEndOf="@id/bathrooms_filter"
+        app:layout_constraintEnd_toEndOf="@id/rooms_filter"
+        android:layout_marginTop="5dp"
+        style="@style/Widget.App.Slider"/>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/type_filter_layout"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/bedrooms_filter"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginTop="16dp"
+        style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.ExposedDropdownMenu"
+        app:boxBackgroundColor="@color/colorPrimary800"
+        android:textColorHint="@color/colorPrimary100"
+        app:startIconTint="@color/colorPrimary100"
+        android:hint="@string/type_hint">
+
+        <AutoCompleteTextView
+            android:id="@+id/type_filter_input"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="none" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/city_filter_layout"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="@id/type_filter_layout"
+        app:layout_constraintEnd_toEndOf="@id/type_filter_layout"
+        app:layout_constraintTop_toBottomOf="@id/type_filter_layout"
+        android:layout_marginTop="16dp"
+        app:endIconMode="clear_text"
+        style="@style/CustomTextInputStyle"
+        android:hint="@string/city_hint">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/city_filter_input"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/chip_group_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/city_filter_layout"
+        app:layout_constraintStart_toStartOf="@+id/bathrooms_filter_title"
+        android:layout_marginTop="16dp"
+        android:text="Points of interests"
+        android:textStyle="bold"
+        android:textSize="16sp"
+        android:textColor="@color/colorPrimary100" />
+
+    <com.google.android.material.chip.ChipGroup
+        android:id="@+id/POI_chip_group"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@+id/chip_group_title"
+        android:layout_marginTop="5dp">
+
+        <com.google.android.material.chip.Chip
+            android:id="@+id/hospital"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            style="@style/CustomChipsStyle"
+            android:text="@string/hospital_chip"/>
+
+        <com.google.android.material.chip.Chip
+            android:id="@+id/doctor"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            style="@style/CustomChipsStyle"
+            android:text="@string/doctor_chip"/>
+
+        <com.google.android.material.chip.Chip
+            android:id="@+id/school"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            style="@style/CustomChipsStyle"
+            android:text="@string/school_chip"/>
+
+        <com.google.android.material.chip.Chip
+            android:id="@+id/church"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            style="@style/CustomChipsStyle"
+            android:text="@string/church_chip"/>
+
+        <com.google.android.material.chip.Chip
+            android:id="@+id/market"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            style="@style/CustomChipsStyle"
+            android:text="@string/market_chip"/>
+
+        <com.google.android.material.chip.Chip
+            android:id="@+id/baker"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            style="@style/CustomChipsStyle"
+            android:text="@string/baker_chip"/>
+
+        <com.google.android.material.chip.Chip
+            android:id="@+id/bucher"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            style="@style/CustomChipsStyle"
+            android:text="@string/bucher_chip"/>
+
+        <com.google.android.material.chip.Chip
+            android:id="@+id/restaurant"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            style="@style/CustomChipsStyle"
+            android:text="@string/restaurant_chip"/>
+
+        <com.google.android.material.chip.Chip
+            android:id="@+id/bar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            style="@style/CustomChipsStyle"
+            android:text="@string/bar_chip"/>
+
+        <com.google.android.material.chip.Chip
+            android:id="@+id/park"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            style="@style/CustomChipsStyle"
+            android:text="@string/park_chip"/>
+
+        <com.google.android.material.chip.Chip
+            android:id="@+id/sport_complex"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            style="@style/CustomChipsStyle"
+            android:text="@string/sport_chip"/>
+
+        <com.google.android.material.chip.Chip
+            android:id="@+id/bus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            style="@style/CustomChipsStyle"
+            android:text="@string/bus_chip"/>
+
+        <com.google.android.material.chip.Chip
+            android:id="@+id/train"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            style="@style/CustomChipsStyle"
+            android:text="@string/train_chip"/>
+
+        <com.google.android.material.chip.Chip
+            android:id="@+id/metro"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            style="@style/CustomChipsStyle"
+            android:text="@string/metro_chip"/>
+
+    </com.google.android.material.chip.ChipGroup>
+
+    <com.google.android.material.checkbox.MaterialCheckBox
+        android:id="@+id/checkbox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/POI_chip_group"
+        android:layout_marginTop="10dp"
+        android:text="Sold"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.core.widget.NestedScrollView>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

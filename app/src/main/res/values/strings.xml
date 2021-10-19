@@ -1,3 +1,57 @@
 <resources>
     <string name="app_name">Real Estate Manager</string>
+
+    //Auth
+    <string name="error_authentication_canceled">error, check your mail/password</string>
+    <string name="error_no_internet">error, check your internet connection</string>
+    <string name="error_unknown_error">unknown error</string>
+
+    <string name="open_drawer">Navigation drawer open</string>
+    <string name="close_drawer">Navigation drawer close</string>
+
+    <string name="convert">CONVERT</string>
+    <string name="synchronize">SYNCHRONIZE</string>
+    <string name="logout">LOGOUT</string>
+
+    <string name="bottom_text_1">list view</string>
+    <string name="bottom_text_2">map view</string>
+
+    <string name="error_location">geolocation impossible</string>
+
+    //Creation
+    <string name="type_hint">type</string>
+    <string name="price_hint">price</string>
+    <string name="street_hint">street</string>
+    <string name="city_hint">city</string>
+    <string name="postal_code_hint">PC</string>
+    <string name="country_hint">country</string>
+    <string name="surface_hint">surface</string>
+    <string name="description_hint">description</string>
+    <string name="poi_hint">NEARBY POINTS OF INTEREST</string>
+    <string name="hospital_chip">hospital</string>
+    <string name="doctor_chip">doctor</string>
+    <string name="school_chip">school</string>
+    <string name="church_chip">church</string>
+    <string name="market_chip">market</string>
+    <string name="baker_chip">baker</string>
+    <string name="bucher_chip">bucher</string>
+    <string name="restaurant_chip">restaurant</string>
+    <string name="bar_chip">bar</string>
+    <string name="park_chip">park</string>
+    <string name="sport_chip">sport complex</string>
+    <string name="bus_chip">bus</string>
+    <string name="train_chip">train</string>
+    <string name="metro_chip">metro/tram</string>
+    <string name="main_picture_text">MAIN PICTURE</string>
+    <string name="rooms_picture_text">ROOMS PICTURE</string>
+    <string name="rooms_description_hint">Room description</string>
+    <string name="camera">CAMERA</string>
+    <string name="storage">STORAGE</string>
+
+
+    <string name="location">%1$s, %2$s</string>
+
+    //Details
+    <string name="surface_text">%1$sm² - %2$s Rooms</string>
+    <string name="location_text">LOCATION</string>
 </resources>

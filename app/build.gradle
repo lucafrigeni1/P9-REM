@@ -1,4 +1,5 @@
 apply plugin: 'com.android.application'
+apply plugin: 'com.google.gms.google-services'
 
 android {
     compileSdkVersion 30
@@ -6,6 +7,7 @@ android {
         applicationId "com.openclassrooms.realestatemanager"
         minSdkVersion 19
         targetSdkVersion 30
+        multiDexEnabled true
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
@@ -19,9 +21,39 @@ android {
 }
 
 dependencies {
+    implementation "androidx.room:room-runtime:2.3.0"
+    annotationProcessor "androidx.room:room-compiler:2.3.0"
+
+    implementation 'com.google.android.gms:play-services-location:18.0.0'
+
+    implementation 'com.google.code.gson:gson:2.8.6'
+
+    implementation platform('com.google.firebase:firebase-bom:28.3.0')
+    implementation 'com.google.firebase:firebase-analytics'
+    implementation 'com.firebaseui:firebase-ui-auth:6.4.0'
+    implementation 'com.firebaseui:firebase-ui-storage:7.1.1'
+    implementation 'com.google.firebase:firebase-firestore'
+
+    implementation 'com.google.android.libraries.places:places:2.4.0'
+    implementation 'com.google.android.gms:play-services-maps:17.0.1'
+    implementation 'com.google.maps.android:android-maps-utils:0.4'
+
+    implementation "androidx.work:work-runtime:2.6.0-beta02"
+
+    implementation 'pub.devrel:easypermissions:3.0.0'
+
+    implementation 'com.github.bumptech.glide:glide:4.12.0'
+    annotationProcessor 'com.github.bumptech.glide:compiler:4.12.0'
+
+    implementation 'com.google.android.material:material:1.4.0'
+
+    implementation 'androidx.lifecycle:lifecycle-viewmodel:2.4.0-alpha03'
+    implementation 'androidx.lifecycle:lifecycle-livedata:2.4.0-alpha03'
+    implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
+
     implementation fileTree(dir: 'libs', include: ['*.jar'])
+
     implementation 'com.android.support.constraint:constraint-layout:2.0.4'
     testImplementation 'junit:junit:4.13.2'
-    androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
 }
