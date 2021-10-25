@@ -15,7 +15,8 @@ public class RealEstate {
     String id;
     String type, descriptions;
     String mainPhoto;
-    double price;
+    int dollarPrice;
+    int euroPrice;
     boolean isSold;
     double surface;
     List<RoomsPhotos> roomsPhotosList;
@@ -23,14 +24,15 @@ public class RealEstate {
     List<String> pointsOfInterest;
     String street, city, postalCode, country;
     double latitude, longitude;
-    String recordDate, saleDate;
+    String recordDate, saleDate, lastEditDate;
     String estateAgent;
 
     public RealEstate(String id,
                       String type,
                       String descriptions,
                       String mainPhoto,
-                      double price,
+                      int dollarPrice,
+                      int euroPrice,
                       boolean isSold,
                       double surface,
                       List<RoomsPhotos> roomsPhotosList,
@@ -46,12 +48,14 @@ public class RealEstate {
                       double longitude,
                       String recordDate,
                       String saleDate,
+                      String lastEditDate,
                       String estateAgent) {
         this.id = id;
         this.type = type;
         this.descriptions = descriptions;
         this.mainPhoto = mainPhoto;
-        this.price = price;
+        this.dollarPrice = dollarPrice;
+        this.euroPrice = euroPrice;
         this.isSold = isSold;
         this.surface = surface;
         this.roomsPhotosList = roomsPhotosList;
@@ -67,6 +71,7 @@ public class RealEstate {
         this.longitude = longitude;
         this.recordDate = recordDate;
         this.saleDate = saleDate;
+        this.lastEditDate = lastEditDate;
         this.estateAgent = estateAgent;
     }
 
@@ -102,12 +107,20 @@ public class RealEstate {
         this.mainPhoto = mainPhoto;
     }
 
-    public double getPrice() {
-        return price;
+    public int getDollarPrice() {
+        return dollarPrice;
     }
 
-    public void setPrice(double price) {
-        this.price = price;
+    public void setDollarPrice(int dollarPrice) {
+        this.dollarPrice = dollarPrice;
+    }
+
+    public int getEuroPrice() {
+        return euroPrice;
+    }
+
+    public void setEuroPrice(int euroPrice) {
+        this.euroPrice = euroPrice;
     }
 
     public boolean isSold() {
@@ -230,6 +243,14 @@ public class RealEstate {
         this.saleDate = saleDate;
     }
 
+    public String getLastEditDate() {
+        return lastEditDate;
+    }
+
+    public void setLastEditDate(String lastEditDate) {
+        this.lastEditDate = lastEditDate;
+    }
+
     public String getEstateAgent() {
         return estateAgent;
     }
@@ -242,7 +263,8 @@ public class RealEstate {
         String id;
         String type, descriptions;
         String mainPhoto;
-        double price;
+        int dollarPrice;
+        int euroPrice;
         boolean isSold;
         double surface;
         List<RoomsPhotos> roomsPhotosList;
@@ -250,13 +272,12 @@ public class RealEstate {
         List<String> pointsOfInterest;
         String street, city, postalCode, country;
         double latitude, longitude;
-        String recordDate, saleDate;
+        String recordDate, saleDate, lastEditDate;
         String estateAgent;
 
         public Builder(String id) {
             this.id = id;
         }
-
 
         public Builder type(String type) {
             this.type = type;
@@ -273,8 +294,13 @@ public class RealEstate {
             return this;
         }
 
-        public Builder price(double price) {
-            this.price = price;
+        public Builder dollarPrice(int dollarPrice) {
+            this.dollarPrice = dollarPrice;
+            return this;
+        }
+
+        public Builder euroPrice(int euroPrice) {
+            this.euroPrice = euroPrice;
             return this;
         }
 
@@ -353,6 +379,11 @@ public class RealEstate {
             return this;
         }
 
+        public Builder lastEditDate(String lastEditDate) {
+            this.lastEditDate = lastEditDate;
+            return this;
+        }
+
         public Builder estateAgent(String estateAgent) {
             this.estateAgent = estateAgent;
             return this;
@@ -364,7 +395,8 @@ public class RealEstate {
             realEstate.type = this.type;
             realEstate.descriptions = this.descriptions;
             realEstate.mainPhoto = this.mainPhoto;
-            realEstate.price = this.price;
+            realEstate.dollarPrice = this.dollarPrice;
+            realEstate.euroPrice = this.euroPrice;
             realEstate.isSold = this.isSold;
             realEstate.surface = this.surface;
             realEstate.roomsPhotosList = this.roomsPhotosList;
@@ -380,19 +412,19 @@ public class RealEstate {
             realEstate.longitude = this.longitude;
             realEstate.recordDate = this.recordDate;
             realEstate.saleDate = this.saleDate;
+            realEstate.lastEditDate = this.lastEditDate;
             realEstate.estateAgent = this.estateAgent;
 
             return realEstate;
         }
     }
 
-    private RealEstate() {
-    }
+    public RealEstate() {}
 
     public static class PriceComparator implements Comparator<RealEstate> {
         @Override
         public int compare(RealEstate o1, RealEstate o2) {
-            return (int) (o1.getPrice() - o2.getPrice());
+            return (o1.getDollarPrice() - o2.getDollarPrice());
         }
     }
 
@@ -406,21 +438,21 @@ public class RealEstate {
     public static class RoomsComparator implements Comparator<RealEstate> {
         @Override
         public int compare(RealEstate o1, RealEstate o2) {
-            return (int) (o1.getRooms() - o2.getRooms());
+            return (o1.getRooms() - o2.getRooms());
         }
     }
 
     public static class BathRoomsComparator implements Comparator<RealEstate> {
         @Override
         public int compare(RealEstate o1, RealEstate o2) {
-            return (int) (o1.getBathrooms() - o2.getBathrooms());
+            return (o1.getBathrooms() - o2.getBathrooms());
         }
     }
 
     public static class BedRoomsComparator implements Comparator<RealEstate> {
         @Override
         public int compare(RealEstate o1, RealEstate o2) {
-            return (int) (o1.getBedrooms() - o2.getBedrooms());
+            return (o1.getBedrooms() - o2.getBedrooms());
         }
     }
 }

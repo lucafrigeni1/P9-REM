@@ -56,10 +56,10 @@ public class DetailFragment extends Fragment implements OnMapReadyCallback {
     RecyclerView recyclerView;
     RoomsPhotosAdapter roomsPhotosAdapter;
 
-    ImageButton backButton;
     FloatingActionButton editButton;
     ImageView sold;
-    TextView type, price, currency, dates, description, roomsAndSurface, bathroomsNumber, bedroomsNumber, street, city, country;
+    TextView type, price, currency, dates, description, roomsAndSurface, bathroomsNumber,
+            bedroomsNumber, street, city, country;
     ChipGroup chipGroup;
     ConstraintLayout nothingSelected, progressIndicatorLayout;
 
@@ -97,7 +97,6 @@ public class DetailFragment extends Fragment implements OnMapReadyCallback {
 
         progressIndicatorLayout = view.findViewById(R.id.progress_bar_layout);
         progressIndicator = view.findViewById(R.id.progress_bar);
-        backButton = view.findViewById(R.id.back_button);
         type = view.findViewById(R.id.type);
         price = view.findViewById(R.id.price);
         currency = view.findViewById(R.id.currency);
@@ -117,18 +116,16 @@ public class DetailFragment extends Fragment implements OnMapReadyCallback {
     }
 
     private void setView(RealEstate realEstate) {
-        //backButton
-
         progressIndicatorLayout.setVisibility(View.GONE);
 
         if (realEstate != null) {
             type.setText(realEstate.getType());
 
             if (Utils.isConvertedInEuro) {
-                price.setText(NumberFormat.getNumberInstance(Locale.FRANCE).format(Utils.convertDollarToEuro((int) realEstate.getPrice())));
+                price.setText(NumberFormat.getNumberInstance(Locale.FRANCE).format(realEstate.getEuroPrice()));
                 currency.setText("€");
             } else {
-                price.setText(NumberFormat.getNumberInstance(Locale.FRANCE).format((int) realEstate.getPrice()));
+                price.setText(NumberFormat.getNumberInstance(Locale.FRANCE).format(realEstate.getDollarPrice()));
                 currency.setText("$");
             }
 

@@ -28,6 +28,7 @@ public class Utils {
     public static LatLng latLng;
 
     public static boolean isConvertedInEuro;
+    public static boolean isTablette;
 
     public static FirebaseUser getFirebaseUser() {
         return FirebaseAuth.getInstance().getCurrentUser();

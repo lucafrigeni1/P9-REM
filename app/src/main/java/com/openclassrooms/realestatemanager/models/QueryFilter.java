@@ -5,7 +5,7 @@ import java.util.List;
 public class QueryFilter {
 
     String type;
-    double minPrice, maxPrice;
+    int minPrice, maxPrice;
     boolean isSold;
     double minSurface, maxSurface;
     int minRooms, maxRooms, minBathrooms, maxBathrooms, minBedrooms, maxBedrooms;
@@ -14,7 +14,7 @@ public class QueryFilter {
 
     public static class Builder {
         String type;
-        double minPrice, maxPrice;
+        int minPrice, maxPrice;
         boolean isSold;
         double minSurface, maxSurface;
         int minRooms, maxRooms, minBathrooms, maxBathrooms, minBedrooms, maxBedrooms;
@@ -26,12 +26,12 @@ public class QueryFilter {
             return this;
         }
 
-        public Builder minPrice(double minPrice) {
+        public Builder minPrice(int minPrice) {
             this.minPrice = minPrice;
             return this;
         }
 
-        public Builder maxPrice(double maxPrice) {
+        public Builder maxPrice(int maxPrice) {
             this.maxPrice = maxPrice;
             return this;
         }
@@ -113,5 +113,61 @@ public class QueryFilter {
 
             return queryFilter;
         }
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public int getMinPrice() {
+        return minPrice;
+    }
+
+    public int getMaxPrice() {
+        return maxPrice;
+    }
+
+    public boolean isSold() {
+        return isSold;
+    }
+
+    public double getMinSurface() {
+        return minSurface;
+    }
+
+    public double getMaxSurface() {
+        return maxSurface;
+    }
+
+    public int getMinRooms() {
+        return minRooms;
+    }
+
+    public int getMaxRooms() {
+        return maxRooms;
+    }
+
+    public int getMinBathrooms() {
+        return minBathrooms;
+    }
+
+    public int getMaxBathrooms() {
+        return maxBathrooms;
+    }
+
+    public int getMinBedrooms() {
+        return minBedrooms;
+    }
+
+    public int getMaxBedrooms() {
+        return maxBedrooms;
+    }
+
+    public List<String> getPointsOfInterest() {
+        return pointsOfInterest;
+    }
+
+    public String getCity() {
+        return city;
     }
 }

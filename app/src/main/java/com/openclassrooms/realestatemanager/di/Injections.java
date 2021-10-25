@@ -13,7 +13,6 @@ public class Injections {
     public static RealEstateDataRepository provideRealEstateDataRepository(Context context) {
         RealEstateManagerDataBase dataBase = RealEstateManagerDataBase.getInstance(context);
         return new RealEstateDataRepository(dataBase.realEstateDAO());
-        //return new RealEstateDataRepository();
     }
 
     public static Executor provideExecutor() {

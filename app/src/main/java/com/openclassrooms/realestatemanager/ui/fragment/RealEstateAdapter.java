@@ -84,7 +84,7 @@ public class RealEstateAdapter extends RecyclerView.Adapter<RealEstateAdapter.Re
 
             type.setText(realEstate.getType());
             location.setText(itemView.getContext().getString(R.string.location, realEstate.getStreet(), realEstate.getCity()));
-            price.setText(NumberFormat.getNumberInstance(Locale.FRANCE).format((int) realEstate.getPrice()));
+
 
             if (!realEstate.isSold()){
                 soldIcon.setBackgroundResource(R.drawable.ic_baseline_not_sell_24);
@@ -92,9 +92,12 @@ public class RealEstateAdapter extends RecyclerView.Adapter<RealEstateAdapter.Re
                 soldIcon.setBackgroundResource(R.drawable.ic_baseline_sell_24);
 
             if (Utils.isConvertedInEuro) {
+                price.setText(NumberFormat.getNumberInstance(Locale.FRANCE).format(realEstate.getEuroPrice()));
                 currency.setText("€");
-            } else
+            } else {
+                price.setText(NumberFormat.getNumberInstance(Locale.FRANCE).format(realEstate.getDollarPrice()));
                 currency.setText("$");
+            }
 
             item.setOnClickListener(v -> {
                 listener.onItemClick(realEstate);

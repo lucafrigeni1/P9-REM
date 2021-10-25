@@ -33,17 +33,6 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
-            <ImageButton
-                android:id="@+id/back_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@color/fui_transparent"
-                android:padding="20dp"
-                android:src="@drawable/ic_baseline_arrow_back_ios_new_24"
-                android:tint="@color/colorPrimary800"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
             <ImageView
                 android:id="@+id/sold"
                 android:layout_width="wrap_content"

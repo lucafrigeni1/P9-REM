@@ -62,7 +62,7 @@ public class CreateActivity extends AppCompatActivity {
 
     List<String> pointsOfInterestList = new ArrayList<>();
 
-    ImageButton backButton;
+    ImageButton backButton, validationButton;
 
     AutoCompleteTextView typeInput;
     TextInputEditText priceInput, streetInput, cityInput, postalCodeInput, countryInput, surfaceInput,
@@ -80,7 +80,7 @@ public class CreateActivity extends AppCompatActivity {
     RoomsPhotosAdapter roomsPhotosAdapter;
 
     CheckBox soldCheckBox;
-    ImageButton validationButton;
+
 
     boolean isSold;
     String saleDate;
@@ -145,7 +145,7 @@ public class CreateActivity extends AppCompatActivity {
     private void setView(RealEstate realEstate) {
         if (realEstate != null) {
             typeInput.setText(realEstate.getType());
-            priceInput.setText(String.valueOf(realEstate.getPrice()));
+            priceInput.setText(String.valueOf(realEstate.getDollarPrice()));
             streetInput.setText(realEstate.getStreet());
             cityInput.setText(realEstate.getCity());
             postalCodeInput.setText(realEstate.getPostalCode());
@@ -178,7 +178,11 @@ public class CreateActivity extends AppCompatActivity {
     }
 
     private void setBackButton() {
-        backButton.setOnClickListener(v -> finish());
+        backButton.setOnClickListener(v -> {
+            finish();
+            Intent intent = new Intent(this.getApplicationContext(), MainActivity.class);
+            startActivity(intent);
+        });
     }
 
     private void setTypeInput() {
@@ -368,7 +372,6 @@ public class CreateActivity extends AppCompatActivity {
     }
 
     private void setValidationButton(RealEstate realEstate) {
-
         String id;
         String recordDate;
 
@@ -384,7 +387,6 @@ public class CreateActivity extends AppCompatActivity {
         }
 
         validationButton.setOnClickListener(v -> {
-
             if (String.valueOf(typeInput.getText()).equals("")
                     || String.valueOf(descriptionInput.getText()).equals("")
                     || mainPicture == null
@@ -403,7 +405,7 @@ public class CreateActivity extends AppCompatActivity {
             } else {
                 String type = String.valueOf(typeInput.getText());
                 String description = String.valueOf(descriptionInput.getText());
-                double price = Double.parseDouble(String.valueOf(priceInput.getText()));
+                int dollarPrice =  Integer.parseInt(String.valueOf(priceInput.getText()));
                 double surface = Double.parseDouble(String.valueOf(surfaceInput.getText()));
                 int rooms = Integer.parseInt(String.valueOf(roomsInput.getText()));
                 int bathrooms = Integer.parseInt(String.valueOf(bathroomsInput.getText()));
@@ -431,7 +433,8 @@ public class CreateActivity extends AppCompatActivity {
                             .type(type)
                             .descriptions(description)
                             .mainPhoto(mainPicture)
-                            .price(price)
+                            .dollarPrice(dollarPrice)
+                            .euroPrice(Utils.convertDollarToEuro((int) dollarPrice))
                             .isSold(isSold)
                             .surface(surface)
                             .roomsPhotosList(roomsPhotosList)
@@ -447,6 +450,7 @@ public class CreateActivity extends AppCompatActivity {
                             .longitude(longitude)
                             .recordDate(recordDate)
                             .saleDate(saleDate)
+                            .lastEditDate(Utils.getTodayDate())
                             .estateAgent(Utils.getFirebaseUser().getDisplayName())
                             .build();
                     realEstateViewModel.createRealEstate(newRealEstate);

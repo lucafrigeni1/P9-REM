@@ -3,6 +3,7 @@ package com.openclassrooms.realestatemanager.ui.activity;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -48,11 +49,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Currency;
 import java.util.List;
+import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     RealEstateViewModel realEstateViewModel;
-    public List<RealEstate> realEstates = new ArrayList<>();
 
     MaterialToolbar topAppBar;
     DrawerLayout drawerLayout;
@@ -62,48 +63,40 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     RealEstateListFragment listFragment;
     MapsFragment mapsFragment;
     DetailFragment detailFragment;
+    boolean isMapsFragmentVisible;
 
     TextView headerName, headerMail;
 
-    QueryFilter queryFilter;
-
-    ImageButton searchButton;
+    ImageButton searchButton, backButton;
     NestedScrollView bottomSheet;
     BottomSheetBehavior bottomSheetBehavior;
     RangeSlider priceSlider, surfaceSlider, roomsSlider, bathroomsSlider, bedroomsSlider;
     AutoCompleteTextView typeFilter;
     TextView cityFilter;
-    ChipGroup bottomSheetChipGroup;
-    ChipGroup topChipGroup;
+    ChipGroup bottomSheetChipGroup, topChipGroup;
     CheckBox soldFilter;
     FloatingActionButton filterButton;
-    boolean isFilter;
 
-    float minPriceFilter;
-    float maxPriceFilter;
-    float minSurfaceFilter;
-    float maxSurfaceFilter;
-    float minRoomsFilter;
-    float maxRoomsFilter;
-    float minBathRoomsFilter;
-    float maxBathRoomsFilter;
-    float minBedRoomsFilter;
-    float maxBedRoomsFilter;
+    float minPriceFilter, maxPriceFilter, minSurfaceFilter, maxSurfaceFilter, minRoomsFilter, maxRoomsFilter,
+            minBathRoomsFilter, maxBathRoomsFilter, minBedRoomsFilter, maxBedRoomsFilter;
 
-    RealEstate minRealEstate, maxRealEstate;
+    QueryFilter queryFilter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         findViewById();
-        initFragment();
+        if (findViewById(R.id.fragment_container2) != null) Utils.isTablette = true;
         Utils.isConvertedInEuro = false;
         setBottomSheetBehavior();
         setBottomNavigation();
         setTopAppBar();
         setViewModel();
-        getRealEstates(false);
+        isMapsFragmentVisible = false;
+        getRealEstatesForFilters();
+        getRealEstatesForLists(null);
+        closeDetailFragment();
     }
 
     private void findViewById() {
@@ -112,6 +105,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         navigationView = findViewById(R.id.navigation_view);
         bottomNavigationView = findViewById(R.id.bot_navigation);
         searchButton = findViewById(R.id.search_button);
+        backButton = findViewById(R.id.back_button);
         bottomSheet = findViewById(R.id.bottom_sheet);
         priceSlider = findViewById(R.id.price_filter);
         surfaceSlider = findViewById(R.id.surface_filter);
@@ -136,51 +130,55 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         this.realEstateViewModel = ViewModelProviders.of(this, viewModelFactory).get(RealEstateViewModel.class);
     }
 
-    private void getRealEstates(boolean isConvert) {
-        if (isFilter) {
-            getFilteredValues();
-            if (isConvert)
-                realEstateViewModel.getRealEstateList().observe(this, this::setFilterBottomSheet);
-        } else
-            realEstateViewModel.getRealEstateList().observe(this, this::setFilterBottomSheet);
+    private void getRealEstatesForLists(QueryFilter queryFilter) {
+        realEstateViewModel.getRealEstateList(queryFilter).observe(this, this::setRealEstates);
+    }
 
-        realEstateViewModel.getFilteredRealEstateList(queryFilter).observe(this, this::setRealEstates);
+    private void getRealEstatesForFilters() {
+        realEstateViewModel.getRealEstateList(null).observe(this, this::setFilterBottomSheet);
     }
 
     public void setRealEstates(List<RealEstate> realEstatesList) {
-        if (mapsFragment.isVisible()) {
-            mapsFragment.setRealEstates(realEstatesList);
-            setMapsFragment();
-        } else {
-            listFragment.setRealEstateList(realEstatesList);
-            setListFragment();
-        }
+        initFragment();
+        if (isMapsFragmentVisible) {
+            setFragment(mapsFragment);
+        } else
+            setFragment(listFragment);
+        mapsFragment.setRealEstates(realEstatesList);
+        listFragment.setRealEstateList(realEstatesList);
+
 
     }
 
+    //SETVALUES DANS UNE AUTRE METHODE ?
     private void setFilterBottomSheet(List<RealEstate> realEstatesList) {
         int lastItem = realEstatesList.size() - 1;
 
         if (!realEstatesList.isEmpty()) {
             Collections.sort(realEstatesList, new RealEstate.PriceComparator());
-            minPriceFilter = (float) realEstatesList.get(0).getPrice();
-            maxPriceFilter = (float) realEstatesList.get(lastItem).getPrice() + 1;
+            if (Utils.isConvertedInEuro){
+                minPriceFilter = realEstatesList.get(0).getEuroPrice();
+                maxPriceFilter = realEstatesList.get(lastItem).getEuroPrice() + 1;
+            } else {
+                minPriceFilter = realEstatesList.get(0).getDollarPrice();
+                maxPriceFilter = realEstatesList.get(lastItem).getDollarPrice() + 1;
+            }
 
             Collections.sort(realEstatesList, new RealEstate.SurfaceComparator());
             minSurfaceFilter = (float) realEstatesList.get(0).getSurface();
             maxSurfaceFilter = (float) realEstatesList.get(lastItem).getSurface() + 1;
 
             Collections.sort(realEstatesList, new RealEstate.RoomsComparator());
-            minRoomsFilter = (float) realEstatesList.get(0).getRooms();
-            maxRoomsFilter = (float) realEstatesList.get(lastItem).getRooms() + 1;
+            minRoomsFilter = realEstatesList.get(0).getRooms();
+            maxRoomsFilter = realEstatesList.get(lastItem).getRooms() + 1;
 
             Collections.sort(realEstatesList, new RealEstate.BathRoomsComparator());
-            minBathRoomsFilter = (float) realEstatesList.get(0).getBathrooms();
-            maxBathRoomsFilter = (float) realEstatesList.get(lastItem).getBathrooms() + 1;
+            minBathRoomsFilter = realEstatesList.get(0).getBathrooms();
+            maxBathRoomsFilter = realEstatesList.get(lastItem).getBathrooms() + 1;
 
             Collections.sort(realEstatesList, new RealEstate.BedRoomsComparator());
-            minBedRoomsFilter = (float) realEstatesList.get(0).getBedrooms();
-            maxBedRoomsFilter = (float) realEstatesList.get(lastItem).getBedrooms() + 1;
+            minBedRoomsFilter = realEstatesList.get(0).getBedrooms();
+            maxBedRoomsFilter = realEstatesList.get(lastItem).getBedrooms() + 1;
 
             priceSlider.setValueFrom(minPriceFilter);
             priceSlider.setValueTo(maxPriceFilter);
@@ -231,28 +229,32 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         filterButton.setOnClickListener(v -> {
             if (!realEstatesList.isEmpty()) {
-                isFilter = true;
-                getRealEstates(false);
+                getFilteredValues();
+                getRealEstatesForLists(queryFilter);
             }
         });
     }
 
     private void getFilteredValues() {
-        String type = String.valueOf(typeFilter.getText());
-        String city = String.valueOf(cityFilter.getText());
-        boolean isSold = soldFilter.isChecked();
-        List<String> pointsOfInterestList = new ArrayList<>();
+        float minPrice = priceSlider.getValues().get(0);
+        float maxPrice = priceSlider.getValues().get(1);
 
+        if (Utils.isConvertedInEuro){
+            minPrice = Utils.convertEuroToDollar((int) minPrice);
+            maxPrice = Utils.convertEuroToDollar((int) maxPrice);
+        }
+
+        List<String> pointsOfInterestList = new ArrayList<>();
         for (int i = 0; i < bottomSheetChipGroup.getChildCount(); i++) {
             Chip chip = (Chip) bottomSheetChipGroup.getChildAt(i);
             if (chip.isChecked()) pointsOfInterestList.add(chip.getText().toString());
         }
 
         queryFilter = new QueryFilter.Builder()
-                .type(type)
-                .minPrice(priceSlider.getValues().get(0))
-                .maxPrice(priceSlider.getValues().get(1))
-                .isSold(isSold)
+                .type(String.valueOf(typeFilter.getText()))
+                .minPrice((int) minPrice)
+                .maxPrice((int) maxPrice)
+                .isSold(soldFilter.isChecked())
                 .minSurface(surfaceSlider.getValues().get(0))
                 .maxSurface(surfaceSlider.getValues().get(1))
                 .minRooms(Math.round(roomsSlider.getValues().get(0)))
@@ -262,7 +264,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 .minBedrooms(Math.round(bedroomsSlider.getValues().get(0)))
                 .maxBedrooms(Math.round(bedroomsSlider.getValues().get(1)))
                 .pointsOfInterest(pointsOfInterestList)
-                .city(city)
+                .city(String.valueOf(cityFilter.getText()))
                 .build();
 
         setChipGroup(pointsOfInterestList);
@@ -280,48 +282,49 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         topChipGroup.addView(clearChip);
 
         clearChip.setOnClickListener(v -> {
-            isFilter = false;
             topChipGroup.removeAllViews();
-            getRealEstates(false);
+            getRealEstatesForLists(null);
+            getRealEstatesForFilters();
         });
 
-        if (minPriceFilter != minRealEstate.getPrice()) {
+        //STRING FORMATTER
+        if (minPriceFilter != queryFilter.getMinPrice()) {
             if (Utils.isConvertedInEuro) {
-                topChipGroup.addView(Utils.chipGenerator(String.valueOf((int) minRealEstate.getPrice()), " €", false, true, this));
+                topChipGroup.addView(Utils.chipGenerator(NumberFormat.getNumberInstance(Locale.FRANCE).format(queryFilter.getMinPrice()), " €", false, true, this));
             } else
-                topChipGroup.addView(Utils.chipGenerator(String.valueOf((int) minRealEstate.getPrice()), " $", false, true, this));
+                topChipGroup.addView(Utils.chipGenerator(NumberFormat.getNumberInstance(Locale.FRANCE).format(queryFilter.getMinPrice()), " $", false, true, this));
         }
 
-        if (maxPriceFilter != maxRealEstate.getPrice()) {
+        if (maxPriceFilter != queryFilter.getMaxPrice()) {
             if (Utils.isConvertedInEuro) {
-                topChipGroup.addView(Utils.chipGenerator(String.valueOf((int) maxRealEstate.getPrice()), " €", false, false, this));
+                topChipGroup.addView(Utils.chipGenerator(NumberFormat.getNumberInstance(Locale.FRANCE).format(queryFilter.getMaxPrice()), " €", false, false, this));
             } else
-                topChipGroup.addView(Utils.chipGenerator(String.valueOf((int) maxRealEstate.getPrice()), " $", false, false, this));
+                topChipGroup.addView(Utils.chipGenerator(NumberFormat.getNumberInstance(Locale.FRANCE).format(queryFilter.getMaxPrice()), " $", false, false, this));
         }
 
-        if (minSurfaceFilter != minRealEstate.getSurface())
-            topChipGroup.addView(Utils.chipGenerator(String.valueOf((int) minRealEstate.getSurface()), "m²", false, true, this));
+        if (minSurfaceFilter != queryFilter.getMinSurface())
+            topChipGroup.addView(Utils.chipGenerator(String.valueOf((int) queryFilter.getMinSurface()), "m²", false, true, this));
 
-        if (maxSurfaceFilter != maxRealEstate.getSurface())
-            topChipGroup.addView(Utils.chipGenerator(String.valueOf((int) maxRealEstate.getSurface()), "m²", false, false, this));
+        if (maxSurfaceFilter != queryFilter.getMaxSurface())
+            topChipGroup.addView(Utils.chipGenerator(String.valueOf((int) queryFilter.getMaxSurface()), "m²", false, false, this));
 
-        if (minRoomsFilter != minRealEstate.getRooms())
-            topChipGroup.addView(Utils.chipGenerator(String.valueOf(minRealEstate.getRooms()), " rooms", false, true, this));
+        if (minRoomsFilter != queryFilter.getMinRooms())
+            topChipGroup.addView(Utils.chipGenerator(String.valueOf(queryFilter.getMinRooms()), " rooms", false, true, this));
 
-        if (maxRoomsFilter != maxRealEstate.getRooms())
-            topChipGroup.addView(Utils.chipGenerator(String.valueOf(maxRealEstate.getRooms()), " rooms", false, false, this));
+        if (maxRoomsFilter != queryFilter.getMaxRooms())
+            topChipGroup.addView(Utils.chipGenerator(String.valueOf(queryFilter.getMaxRooms()), " rooms", false, false, this));
 
-        if (minBathRoomsFilter != minRealEstate.getBathrooms())
-            topChipGroup.addView(Utils.chipGenerator(String.valueOf(minRealEstate.getBathrooms()), " bathrooms", false, true, this));
+        if (minBathRoomsFilter != queryFilter.getMinBathrooms())
+            topChipGroup.addView(Utils.chipGenerator(String.valueOf(queryFilter.getMinBathrooms()), " bathrooms", false, true, this));
 
-        if (maxBathRoomsFilter != maxRealEstate.getBathrooms())
-            topChipGroup.addView(Utils.chipGenerator(String.valueOf(maxRealEstate.getBathrooms()), " bathrooms", false, false, this));
+        if (maxBathRoomsFilter != queryFilter.getMaxBathrooms())
+            topChipGroup.addView(Utils.chipGenerator(String.valueOf(queryFilter.getMaxBathrooms()), " bathrooms", false, false, this));
 
-        if (minBedRoomsFilter != minRealEstate.getBedrooms())
-            topChipGroup.addView(Utils.chipGenerator(String.valueOf(minRealEstate.getBedrooms()), " bedrooms", false, true, this));
+        if (minBedRoomsFilter != queryFilter.getMinBedrooms())
+            topChipGroup.addView(Utils.chipGenerator(String.valueOf(queryFilter.getMinBedrooms()), " bedrooms", false, true, this));
 
-        if (maxBedRoomsFilter != maxRealEstate.getBedrooms())
-            topChipGroup.addView(Utils.chipGenerator(String.valueOf(maxRealEstate.getBedrooms()), " bedrooms", false, false, this));
+        if (maxBedRoomsFilter != queryFilter.getMaxBedrooms())
+            topChipGroup.addView(Utils.chipGenerator(String.valueOf(queryFilter.getMaxBedrooms()), " bedrooms", false, false, this));
 
         if (!typeFilter.getText().toString().isEmpty())
             topChipGroup.addView(Utils.chipGenerator(typeFilter.getText().toString(), null, true, false, this));
@@ -388,7 +391,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         } else {
             Utils.isConvertedInEuro = true;
         }
-        getRealEstates(true);
+        getRealEstatesForFilters();
+        getRealEstatesForLists(queryFilter);
     }
 
     private void signOutUserFromFirebase() {
@@ -413,11 +417,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             switch (item.getItemId()) {
                 case R.id.list:
                     searchButton.setVisibility(View.VISIBLE);
-                    setListFragment();
+                    setFragment(listFragment);
+                    isMapsFragmentVisible = false;
                     break;
                 case R.id.map:
                     searchButton.setVisibility(View.VISIBLE);
-                    setMapsFragment();
+                    setFragment(mapsFragment);
+                    isMapsFragmentVisible = true;
                     break;
             }
             return true;
@@ -435,14 +441,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         fragmentTransaction.replace(R.id.fragment_container, fragment).commit();
     }
 
-    public void setListFragment() {
-        setFragment(listFragment);
-    }
-
-    public void setMapsFragment() {
-        setFragment(mapsFragment);
-    }
-
     public void launchDetailFragment(RealEstate realEstate) {
         detailFragment = DetailFragment.newInstance(realEstate.getId());
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
@@ -451,6 +449,21 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         } else {
             fragmentTransaction.replace(R.id.fragment_container, detailFragment).commit();
             searchButton.setVisibility(View.GONE);
+            backButton.setVisibility(View.VISIBLE);
+            bottomNavigationView.setVisibility(View.GONE);
+            topChipGroup.setVisibility(View.GONE);
         }
+    }
+
+    private void closeDetailFragment(){
+        backButton.setOnClickListener(v -> {
+            if (isMapsFragmentVisible){
+                setFragment(mapsFragment);
+            } else setFragment(listFragment);
+            searchButton.setVisibility(View.VISIBLE);
+            backButton.setVisibility(View.GONE);
+            bottomNavigationView.setVisibility(View.VISIBLE);
+            topChipGroup.setVisibility(View.VISIBLE);
+        });
     }
 }
