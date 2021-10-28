@@ -1,7 +1,6 @@
 package com.openclassrooms.realestatemanager.repository;
 
 import android.net.Uri;
-import android.util.Log;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -11,6 +10,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.openclassrooms.realestatemanager.Utils;
 import com.openclassrooms.realestatemanager.database.RealEstateDAO;
 import com.openclassrooms.realestatemanager.models.QueryFilter;
 import com.openclassrooms.realestatemanager.models.RealEstate;
@@ -24,46 +24,48 @@ import java.util.UUID;
 
 public class RealEstateDataRepository {
 
-   private final RealEstateDAO realEstateDAO;
+    private final RealEstateDAO realEstateDAO;
 
-   public RealEstateDataRepository(RealEstateDAO realEstateDAO) {
-       this.realEstateDAO = realEstateDAO;
-   }
+    public RealEstateDataRepository(RealEstateDAO realEstateDAO) {
+        this.realEstateDAO = realEstateDAO;
+    }
 
-   public LiveData<List<RealEstate>> getRealEstateList(QueryFilter queryFilter){
-       if (queryFilter != null ) {
-           return this.realEstateDAO.getFilteredRealEstateList(
-                   //queryFilter.getType(),
-                   queryFilter.getMinPrice(),
-                   queryFilter.getMaxPrice(),
-                   queryFilter.isSold(),
-                   queryFilter.getMinSurface(),
-                   queryFilter.getMaxSurface(),
-                   queryFilter.getMinRooms(),
-                   queryFilter.getMaxRooms(),
-                   queryFilter.getMinBathrooms(),
-                   queryFilter.getMaxBathrooms(),
-                   queryFilter.getMinBedrooms(),
-                   queryFilter.getMaxBedrooms()
-                   //,
-                   //queryFilter.getPointsOfInterest(),
-                   //queryFilter.getCity()
-           );
-       } else {
-           return this.realEstateDAO.getRealEstateList();
-       }
+    public LiveData<List<RealEstate>> getRealEstateList(QueryFilter queryFilter) {
+        if (queryFilter != null) {
+            boolean isPOIEmpty = queryFilter.getPointsOfInterest().isEmpty();
+            return this.realEstateDAO.getFilteredRealEstateList(
+                    Utils.isConvertedInEuro + "",
+                    isPOIEmpty + "",
+                    queryFilter.getType(),
+                    queryFilter.getMinPrice(),
+                    queryFilter.getMaxPrice(),
+                    queryFilter.isSold(),
+                    queryFilter.getMinSurface(),
+                    queryFilter.getMaxSurface(),
+                    queryFilter.getMinRooms(),
+                    queryFilter.getMaxRooms(),
+                    queryFilter.getMinBathrooms(),
+                    queryFilter.getMaxBathrooms(),
+                    queryFilter.getMinBedrooms(),
+                    queryFilter.getMaxBedrooms(),
+                    queryFilter.getPointsOfInterest(),
+                    queryFilter.getCity()
+            );
+        } else {
+            return this.realEstateDAO.getRealEstateList();
+        }
     }
 
     public LiveData<RealEstate> getRealEstate(String id) {
         return this.realEstateDAO.getRealEstate(id);
     }
 
-   public void createRealEstate(RealEstate realEstate){
-       realEstateDAO.insertRealEstate(realEstate);
-   }
+    public void createRealEstate(RealEstate realEstate) {
+        realEstateDAO.insertRealEstate(realEstate);
+    }
 
-   //SYNCHRONIZE WITH FIREBASE
-    public void synchroniseWithFirebase(List<RealEstate> roomList){
+    //SYNCHRONIZE WITH FIREBASE
+    public void synchroniseWithFirebase(List<RealEstate> roomList) {
         CollectionReference realEstateCollectionReference =
                 FirebaseFirestore.getInstance().collection("realEstate");
 
@@ -75,26 +77,27 @@ public class RealEstateDataRepository {
                 firebaseList.add(realEstate);
             }
 
-            for (RealEstate roomListItem : roomList){
-                if (!firebaseList.contains(roomListItem)){
+            for (RealEstate roomListItem : roomList) {
+                if (!firebaseList.contains(roomListItem)) {
                     realEstateCollectionReference.document(roomListItem.getId()).set(roomListItem);
                 }
             }
 
-            for (RealEstate firebaseListItem : firebaseList){
-                if (!roomList.contains(firebaseListItem)){
-                    createRealEstate(firebaseListItem);
+            for (RealEstate firebaseListItem : firebaseList) {
+                if (!roomList.contains(firebaseListItem)) {
+                    realEstateDAO.insertRealEstate(firebaseListItem);
                 }
             }
 
-            for (RealEstate roomListItem : roomList){
+            for (RealEstate roomListItem : roomList) {
                 for (RealEstate firebaseListItem : firebaseList) {
                     if (roomListItem.getId().equals(firebaseListItem.getId())) {
                         try {
                             Date date1 = new SimpleDateFormat("dd/MM/yyyy").parse(roomListItem.getLastEditDate());
                             Date date2 = new SimpleDateFormat("dd/MM/yyyy").parse(firebaseListItem.getLastEditDate());
 
-                            if (date1.after(date2)) realEstateCollectionReference.document(roomListItem.getId()).set(roomListItem);
+                            if (date1.after(date2))
+                                realEstateCollectionReference.document(roomListItem.getId()).set(roomListItem);
                             if (date1.before(date2)) createRealEstate(firebaseListItem);
 
                         } catch (ParseException e) {

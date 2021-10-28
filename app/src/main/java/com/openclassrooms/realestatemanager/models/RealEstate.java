@@ -419,7 +419,8 @@ public class RealEstate {
         }
     }
 
-    public RealEstate() {}
+    public RealEstate() {
+    }
 
     public static class PriceComparator implements Comparator<RealEstate> {
         @Override

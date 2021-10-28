@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -118,6 +117,7 @@ public class DetailFragment extends Fragment implements OnMapReadyCallback {
     private void setView(RealEstate realEstate) {
         progressIndicatorLayout.setVisibility(View.GONE);
 
+
         if (realEstate != null) {
             type.setText(realEstate.getType());
 
@@ -129,15 +129,15 @@ public class DetailFragment extends Fragment implements OnMapReadyCallback {
                 currency.setText("$");
             }
 
-            if (!realEstate.isSold()){
+            if (!realEstate.isSold()) {
                 sold.setBackgroundResource(R.drawable.ic_baseline_not_sell_24);
             } else
                 sold.setBackgroundResource(R.drawable.ic_baseline_sell_24);
 
-            if (realEstate.getSaleDate().isEmpty()){
+            if (realEstate.getSaleDate().isEmpty()) {
                 dates.setText(realEstate.getRecordDate());
             } else
-            dates.setText(realEstate.getRecordDate() + " - " + realEstate.getSaleDate());
+                dates.setText(realEstate.getRecordDate() + " - " + realEstate.getSaleDate());
 
             List<RoomsPhotos> roomsPhotosList = realEstate.getRoomsPhotosList();
             roomsPhotosAdapter = new RoomsPhotosAdapter(roomsPhotosList, false);
@@ -152,7 +152,7 @@ public class DetailFragment extends Fragment implements OnMapReadyCallback {
             country.setText(realEstate.getCountry());
             latLng = new LatLng(realEstate.getLatitude(), realEstate.getLongitude());
 
-            for (String poi: realEstate.getPointsOfInterest()){
+            for (String poi : realEstate.getPointsOfInterest()) {
                 Chip chip = new Chip(Objects.requireNonNull(this.getContext()));
                 chip.setText(poi);
                 chip.setChipBackgroundColorResource(R.color.colorPrimary100);

@@ -56,7 +56,7 @@ public class RealEstateListFragment extends Fragment {
         recyclerView.setLayoutManager(new LinearLayoutManager(this.getContext(), LinearLayoutManager.VERTICAL, false));
         recyclerView.setAdapter(adapter);
 
-        if (!realEstates.isEmpty()){
+        if (!realEstates.isEmpty()) {
             emptyList.setVisibility(View.GONE);
         }
     }

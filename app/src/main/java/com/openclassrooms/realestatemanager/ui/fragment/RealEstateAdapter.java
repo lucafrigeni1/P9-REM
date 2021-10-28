@@ -1,9 +1,5 @@
 package com.openclassrooms.realestatemanager.ui.fragment;
 
-import android.annotation.SuppressLint;
-import android.graphics.PorterDuff;
-import android.provider.ContactsContract;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,7 +11,6 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-import com.google.android.gms.dynamic.IFragmentWrapper;
 import com.openclassrooms.realestatemanager.R;
 import com.openclassrooms.realestatemanager.Utils;
 import com.openclassrooms.realestatemanager.models.RealEstate;
@@ -86,7 +81,7 @@ public class RealEstateAdapter extends RecyclerView.Adapter<RealEstateAdapter.Re
             location.setText(itemView.getContext().getString(R.string.location, realEstate.getStreet(), realEstate.getCity()));
 
 
-            if (!realEstate.isSold()){
+            if (!realEstate.isSold()) {
                 soldIcon.setBackgroundResource(R.drawable.ic_baseline_not_sell_24);
             } else
                 soldIcon.setBackgroundResource(R.drawable.ic_baseline_sell_24);
@@ -98,6 +93,7 @@ public class RealEstateAdapter extends RecyclerView.Adapter<RealEstateAdapter.Re
                 price.setText(NumberFormat.getNumberInstance(Locale.FRANCE).format(realEstate.getDollarPrice()));
                 currency.setText("$");
             }
+
 
             item.setOnClickListener(v -> {
                 listener.onItemClick(realEstate);

@@ -81,13 +81,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             minBathRoomsFilter, maxBathRoomsFilter, minBedRoomsFilter, maxBedRoomsFilter;
 
     QueryFilter queryFilter;
+    boolean isFilterListShowing;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         findViewById();
-        if (findViewById(R.id.fragment_container2) != null) Utils.isTablette = true;
         Utils.isConvertedInEuro = false;
         setBottomSheetBehavior();
         setBottomNavigation();
@@ -95,7 +95,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         setViewModel();
         isMapsFragmentVisible = false;
         getRealEstatesForFilters();
-        getRealEstatesForLists(null);
         closeDetailFragment();
     }
 
@@ -128,6 +127,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private void setViewModel() {
         ViewModelFactory viewModelFactory = Injections.provideViewModelFactory(this);
         this.realEstateViewModel = ViewModelProviders.of(this, viewModelFactory).get(RealEstateViewModel.class);
+        //realEstateViewModel.getRealEstateList(null).observe(this, this::databaseSynchronisation);
+    }
+
+    private void databaseSynchronisation(List<RealEstate> realEstatesList) {
+        realEstateViewModel.synchroniseWithFirebase(realEstatesList);
     }
 
     private void getRealEstatesForLists(QueryFilter queryFilter) {
@@ -156,7 +160,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         if (!realEstatesList.isEmpty()) {
             Collections.sort(realEstatesList, new RealEstate.PriceComparator());
-            if (Utils.isConvertedInEuro){
+            if (Utils.isConvertedInEuro) {
                 minPriceFilter = realEstatesList.get(0).getEuroPrice();
                 maxPriceFilter = realEstatesList.get(lastItem).getEuroPrice() + 1;
             } else {
@@ -229,20 +233,23 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         filterButton.setOnClickListener(v -> {
             if (!realEstatesList.isEmpty()) {
+                isFilterListShowing = true;
                 getFilteredValues();
                 getRealEstatesForLists(queryFilter);
             }
         });
+
+
+        if (isFilterListShowing) {
+            getFilteredValues();
+            getRealEstatesForLists(queryFilter);
+        } else
+            getRealEstatesForLists(null);
     }
 
     private void getFilteredValues() {
         float minPrice = priceSlider.getValues().get(0);
         float maxPrice = priceSlider.getValues().get(1);
-
-        if (Utils.isConvertedInEuro){
-            minPrice = Utils.convertEuroToDollar((int) minPrice);
-            maxPrice = Utils.convertEuroToDollar((int) maxPrice);
-        }
 
         List<String> pointsOfInterestList = new ArrayList<>();
         for (int i = 0; i < bottomSheetChipGroup.getChildCount(); i++) {
@@ -283,11 +290,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         clearChip.setOnClickListener(v -> {
             topChipGroup.removeAllViews();
+            isFilterListShowing = false;
             getRealEstatesForLists(null);
             getRealEstatesForFilters();
         });
 
-        //STRING FORMATTER
         if (minPriceFilter != queryFilter.getMinPrice()) {
             if (Utils.isConvertedInEuro) {
                 topChipGroup.addView(Utils.chipGenerator(NumberFormat.getNumberInstance(Locale.FRANCE).format(queryFilter.getMinPrice()), " €", false, true, this));
@@ -391,8 +398,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         } else {
             Utils.isConvertedInEuro = true;
         }
+        Log.e("convert: ", String.valueOf(Utils.isConvertedInEuro));
         getRealEstatesForFilters();
-        getRealEstatesForLists(queryFilter);
     }
 
     private void signOutUserFromFirebase() {
@@ -455,9 +462,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
-    private void closeDetailFragment(){
+    private void closeDetailFragment() {
         backButton.setOnClickListener(v -> {
-            if (isMapsFragmentVisible){
+            if (isMapsFragmentVisible) {
                 setFragment(mapsFragment);
             } else setFragment(listFragment);
             searchButton.setVisibility(View.VISIBLE);

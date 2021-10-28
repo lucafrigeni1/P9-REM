@@ -21,8 +21,14 @@ public class QueryFilter {
         List<String> pointsOfInterest;
         String city;
 
+        public static final String NO_FILTER = "%";
+
         public Builder type(String type) {
-            this.type = type;
+            if (type.isEmpty()) {
+                this.type = NO_FILTER;
+            } else {
+                this.type = type;
+            }
             return this;
         }
 
@@ -89,10 +95,13 @@ public class QueryFilter {
         }
 
         public Builder city(String city) {
-            this.city = city;
+            if (city.isEmpty()) {
+                this.city = NO_FILTER;
+            } else {
+                this.city = city;
+            }
             return this;
         }
-
 
         public QueryFilter build() {
             QueryFilter queryFilter = new QueryFilter();

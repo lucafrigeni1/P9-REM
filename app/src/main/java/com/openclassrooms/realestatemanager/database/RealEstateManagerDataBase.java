@@ -14,6 +14,7 @@ import com.openclassrooms.realestatemanager.models.RealEstate;
 public abstract class RealEstateManagerDataBase extends RoomDatabase {
 
     private static volatile RealEstateManagerDataBase INSTANCE;
+
     public abstract RealEstateDAO realEstateDAO();
 
     public static RealEstateManagerDataBase getInstance(Context context) {

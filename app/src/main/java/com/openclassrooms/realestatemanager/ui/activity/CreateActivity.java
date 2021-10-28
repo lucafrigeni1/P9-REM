@@ -334,7 +334,7 @@ public class CreateActivity extends AppCompatActivity {
                     RoomsPhotos roomsPhotos = new RoomsPhotos(uuid,
                             roomPhotoDescriptionInput.getText().toString()
                     );
-                    Log.e( "handleResponse: ", roomsPhotos.getDescription().toString());
+                    Log.e("handleResponse: ", roomsPhotos.getDescription().toString());
                     addRoomsPhotos(roomsPhotos);
                     roomPhotoDescriptionInput.getText().clear();
                 });
@@ -405,7 +405,7 @@ public class CreateActivity extends AppCompatActivity {
             } else {
                 String type = String.valueOf(typeInput.getText());
                 String description = String.valueOf(descriptionInput.getText());
-                int dollarPrice =  Integer.parseInt(String.valueOf(priceInput.getText()));
+                int dollarPrice = Integer.parseInt(String.valueOf(priceInput.getText()));
                 double surface = Double.parseDouble(String.valueOf(surfaceInput.getText()));
                 int rooms = Integer.parseInt(String.valueOf(roomsInput.getText()));
                 int bathrooms = Integer.parseInt(String.valueOf(bathroomsInput.getText()));

@@ -46,7 +46,7 @@ public class Notifications extends Worker {
 
         String text;
 
-        if (isCreate){
+        if (isCreate) {
             text = "New real estate created";
         } else {
             text = "modification saved";

@@ -28,7 +28,6 @@ public class Utils {
     public static LatLng latLng;
 
     public static boolean isConvertedInEuro;
-    public static boolean isTablette;
 
     public static FirebaseUser getFirebaseUser() {
         return FirebaseAuth.getInstance().getCurrentUser();
@@ -82,7 +81,7 @@ public class Utils {
     }
 
     @SuppressLint("ResourceAsColor")
-    public static Chip chipGenerator(String a, String b, boolean isText, boolean isUpper, Context context){
+    public static Chip chipGenerator(String a, String b, boolean isText, boolean isUpper, Context context) {
         Chip chip = new Chip(context);
         if (!isText) {
             if (isUpper) {
