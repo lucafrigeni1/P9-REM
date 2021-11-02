@@ -1,6 +1,5 @@
 package com.openclassrooms.realestatemanager;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.location.Address;
@@ -11,7 +10,6 @@ import android.net.Uri;
 import android.provider.MediaStore;
 
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.material.chip.Chip;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
@@ -75,24 +73,8 @@ public class Utils {
         return uri;
     }
 
-    public static String setUrl(String url) {
+    public static String setPhotoUrl(String url) {
         url = "https://firebasestorage.googleapis.com/v0/b/real-estate-manager-24a7c.appspot.com/o/" + url + "?alt=media&token=aaa40131-adc6-404d-b184-532e7e720092";
         return url;
-    }
-
-    @SuppressLint("ResourceAsColor")
-    public static Chip chipGenerator(String a, String b, boolean isText, boolean isUpper, Context context) {
-        Chip chip = new Chip(context);
-        if (!isText) {
-            if (isUpper) {
-                chip.setText("> " + a + b);
-            } else
-                chip.setText("< " + a + b);
-        } else
-            chip.setText(a);
-
-        chip.setChipBackgroundColorResource(R.color.colorPrimary800);
-        chip.setTextColor(R.color.colorPrimary50);
-        return chip;
     }
 }

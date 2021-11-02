@@ -20,7 +20,7 @@ import java.util.List;
 public class RoomsPhotosAdapter extends RecyclerView.Adapter<RoomsPhotosAdapter.RoomsPhotosViewHolder> {
 
     private final List<RoomsPhotos> roomsPhotosList;
-    private boolean isEditing;
+    private final boolean isEditing;
 
     public RoomsPhotosAdapter(List<RoomsPhotos> roomsPhotosList, boolean isEditing) {
         this.roomsPhotosList = roomsPhotosList;
@@ -58,23 +58,16 @@ public class RoomsPhotosAdapter extends RecyclerView.Adapter<RoomsPhotosAdapter.
         }
 
         public void bind(RoomsPhotos roomsPhotos) {
-            Glide.with(photoView)
-                    .load(Utils.setUrl(roomsPhotos.getUrl()))
-                    .centerCrop()
-                    .into(photoView);
-
+            Glide.with(photoView).load(Utils.setPhotoUrl(roomsPhotos.getUrl())).centerCrop().into(photoView);
             descriptionView.setText(roomsPhotos.getDescription());
 
-            if (!isEditing) {
-                deleteButton.setVisibility(View.GONE);
-            } else {
-                deleteButton.setVisibility(View.VISIBLE);
-            }
+            if (!isEditing) deleteButton.setVisibility(View.GONE);
+            else deleteButton.setVisibility(View.VISIBLE);
+
             deleteButton.setOnClickListener(v -> {
                 roomsPhotosList.remove(getAdapterPosition());
                 notifyItemRemoved(getAdapterPosition());
             });
-
         }
     }
 }

@@ -45,12 +45,8 @@ public class Notifications extends Worker {
         String channelId = "channel id";
 
         String text;
-
-        if (isCreate) {
-            text = "New real estate created";
-        } else {
-            text = "modification saved";
-        }
+        if (isCreate) text = context.getString(R.string.creation_notification);
+        else text = context.getString(R.string.edit_notification);
 
         NotificationCompat.Builder notificationBuilder =
                 new NotificationCompat.Builder(context, channelId)

@@ -22,7 +22,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModelProviders;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
@@ -50,18 +50,14 @@ import java.util.Objects;
 public class MapsFragment extends Fragment implements OnMapReadyCallback {
 
     RealEstateViewModel realEstateViewModel;
-
     List<RealEstate> realEstates = new ArrayList<>();
 
     private GoogleMap map;
     FusedLocationProviderClient fusedLocationProviderClient;
-
+    private static final int DEFAULT_ZOOM = 15, PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1;
+    private boolean locationPermissionGranted;
     Location location;
     double lat, lng;
-
-    private static final int DEFAULT_ZOOM = 15;
-    private static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1;
-    private boolean locationPermissionGranted;
 
     FloatingActionButton floatingActionButton;
 
@@ -81,7 +77,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
 
     private void setViewModel() {
         ViewModelFactory viewModelFactory = Injections.provideViewModelFactory(this.getContext());
-        this.realEstateViewModel = ViewModelProviders.of(this, viewModelFactory).get(RealEstateViewModel.class);
+        this.realEstateViewModel = new ViewModelProvider(this, viewModelFactory).get(RealEstateViewModel.class);
     }
 
     public void setRealEstates(List<RealEstate> realEstateList) {

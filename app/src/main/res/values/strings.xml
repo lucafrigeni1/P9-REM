@@ -1,22 +1,13 @@
 <resources>
     <string name="app_name">Real Estate Manager</string>
 
-    //Auth
-    <string name="error_authentication_canceled">error, check your mail/password</string>
-    <string name="error_no_internet">error, check your internet connection</string>
-    <string name="error_unknown_error">unknown error</string>
-
+    //NAVIGATION
     <string name="open_drawer">Navigation drawer open</string>
     <string name="close_drawer">Navigation drawer close</string>
-
     <string name="convert">CONVERT</string>
-    <string name="synchronize">SYNCHRONIZE</string>
     <string name="logout">LOGOUT</string>
-
     <string name="bottom_text_1">list view</string>
     <string name="bottom_text_2">map view</string>
-
-    <string name="error_location">geolocation impossible</string>
 
     //Creation
     <string name="type_hint">type</string>
@@ -48,10 +39,40 @@
     <string name="camera">CAMERA</string>
     <string name="storage">STORAGE</string>
 
-
+    //List
     <string name="location">%1$s, %2$s</string>
+    <string name="euro_price_list">€ %1$s</string>
+    <string name="dollar_price_list">$ %1$s</string>
 
     //Details
     <string name="surface_text">%1$sm² - %2$s Rooms</string>
+    <string name="euro_price">%1$s €</string>
+    <string name="dollar_price">%1$s $</string>
     <string name="location_text">LOCATION</string>
+
+    //FILTERS
+    <string name="upper">> %1$s</string>
+    <string name="smaller">\u003C %1$s</string>
+    <string name="surface">%1$s m²</string>
+    <string name="rooms">%1$s rooms</string>
+    <string name="bathrooms">%1$s bathrooms</string>
+    <string name="bedrooms">%1$s bedrooms</string>
+    <string name="sold">Sold</string>
+    <string name="unsold">Unsold</string>
+    <string name="clear">CLEAR</string>
+
+    //ERROR
+    <string name="error">error</string>
+    <string name="empty_fields">some fields are empty</string>
+    <string name="adress_error">check the adress</string>
+    <string name="rooms_photo_error">Complete the field first</string>
+    <string name="error_location">geolocation impossible</string>
+    <string name="error_authentication_canceled">error, check your mail/password</string>
+    <string name="error_no_internet">error, check your internet connection</string>
+    <string name="error_unknown_error">unknown error</string>
+
+    //NOTIFICATIONS
+    <string name="creation_notification">New real estate created</string>
+    <string name="edit_notification">modification saved</string>
+
 </resources>

@@ -54,18 +54,6 @@
                 app:layout_constraintTop_toTopOf="@+id/sold" />
 
             <TextView
-                android:id="@+id/currency"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="2dp"
-                android:textColor="@color/colorPrimary800"
-                android:textSize="14sp"
-                android:textStyle="normal"
-                app:layout_constraintBottom_toBottomOf="@+id/price"
-                app:layout_constraintStart_toEndOf="@+id/price"
-                app:layout_constraintTop_toTopOf="@+id/price" />
-
-            <TextView
                 android:id="@+id/dates"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

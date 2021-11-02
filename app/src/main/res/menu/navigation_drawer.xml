@@ -8,11 +8,6 @@
         android:icon="@drawable/ic_baseline_euro_24"/>
 
     <item
-        android:id="@+id/synchronize"
-        android:title="@string/synchronize"
-        android:icon="@drawable/ic_baseline_cloud_upload_24"/>
-
-    <item
         android:id="@+id/logout"
         android:title="@string/logout"
         android:icon="@drawable/ic_baseline_logout_24"/>

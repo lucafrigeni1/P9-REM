@@ -55,9 +55,8 @@
 
             <com.google.android.material.chip.ChipGroup
                 android:id="@+id/top_chip_group"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:paddingStart="10dp"
                 app:singleLine="true" />
         </HorizontalScrollView>
 

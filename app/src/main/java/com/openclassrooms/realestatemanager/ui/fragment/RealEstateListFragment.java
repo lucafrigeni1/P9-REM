@@ -11,7 +11,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModelProviders;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -35,7 +35,6 @@ public class RealEstateListFragment extends Fragment {
     RecyclerView recyclerView;
     RealEstateViewModel viewModel;
     FloatingActionButton addButton;
-
     List<RealEstate> realEstates = new ArrayList<>();
 
     @Nullable
@@ -47,22 +46,33 @@ public class RealEstateListFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        findViewById(view);
+        setViewModel();
+        setRecyclerView();
+        setAddButton();
+    }
+
+    private void findViewById(View view){
         emptyList = view.findViewById(R.id.empty_drawable);
         recyclerView = view.findViewById(R.id.real_estate_list);
         addButton = view.findViewById(R.id.add_button);
-        setAddButton();
-        setViewModel();
-        RealEstateAdapter adapter = new RealEstateAdapter(realEstates, ((MainActivity) Objects.requireNonNull(this.getActivity()))::launchDetailFragment);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this.getContext(), LinearLayoutManager.VERTICAL, false));
-        recyclerView.setAdapter(adapter);
+    }
 
-        if (!realEstates.isEmpty()) {
-            emptyList.setVisibility(View.GONE);
-        }
+    private void setViewModel() {
+        ViewModelFactory viewModelFactory = Injections.provideViewModelFactory(this.getContext());
+        this.viewModel = new ViewModelProvider(this, viewModelFactory).get(RealEstateViewModel.class);
     }
 
     public void setRealEstateList(List<RealEstate> realEstateList) {
         realEstates = realEstateList;
+    }
+
+    public void setRecyclerView(){
+        RealEstateAdapter adapter = new RealEstateAdapter(realEstates, ((MainActivity) Objects.requireNonNull(this.getActivity()))::launchDetailFragment);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this.getContext(), LinearLayoutManager.VERTICAL, false));
+        recyclerView.setAdapter(adapter);
+
+        if (!realEstates.isEmpty()) emptyList.setVisibility(View.GONE);
     }
 
     private void setAddButton() {
@@ -70,13 +80,7 @@ public class RealEstateListFragment extends Fragment {
             if (Utils.isInternetAvailable(Objects.requireNonNull(this.getContext()))) {
                 Intent intent = new Intent(this.getContext(), CreateActivity.class);
                 startActivity(intent);
-            } else
-                Toast.makeText(this.getContext(), "aaa", Toast.LENGTH_LONG).show();
+            } else Toast.makeText(this.getContext(), R.string.error_no_internet, Toast.LENGTH_LONG).show();
         });
-    }
-
-    private void setViewModel() {
-        ViewModelFactory viewModelFactory = Injections.provideViewModelFactory(this.getContext());
-        this.viewModel = ViewModelProviders.of(this, viewModelFactory).get(RealEstateViewModel.class);
     }
 }

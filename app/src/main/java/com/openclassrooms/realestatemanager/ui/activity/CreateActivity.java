@@ -7,7 +7,6 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
@@ -46,21 +45,13 @@ import pub.devrel.easypermissions.EasyPermissions;
 
 public class CreateActivity extends AppCompatActivity {
 
+    RealEstateViewModel realEstateViewModel;
+
     public static final String EXTRA_REAL_ESTATE = "RealEstateId";
 
     String STORAGE_PERMS = Manifest.permission.READ_EXTERNAL_STORAGE;
     String CAMERA_PERMS = Manifest.permission.CAMERA;
-    private final static int RC_MAIN_FILE = 100;
-    private final static int RC_MAIN_CAMERA = 200;
-    private final static int RC_ROOM_FILE = 300;
-    private final static int RC_ROOM_CAMERA = 400;
-
-    Uri uri;
-    String mainPicture;
-
-    RealEstateViewModel realEstateViewModel;
-
-    List<String> pointsOfInterestList = new ArrayList<>();
+    private final static int RC_MAIN_FILE = 100, RC_MAIN_CAMERA = 200, RC_ROOM_FILE = 300, RC_ROOM_CAMERA = 400;
 
     ImageButton backButton, validationButton;
 
@@ -69,23 +60,19 @@ public class CreateActivity extends AppCompatActivity {
             roomsInput, bathroomsInput, bedroomsInput, descriptionInput, roomPhotoDescriptionInput;
 
     ChipGroup chipGroup;
+    List<String> pointsOfInterestList = new ArrayList<>();
 
-    Button mainPhotoButton, mainFileButton;
+    Button mainPhotoButton, mainFileButton, roomsPhotoButton, roomsFileButton;
+    String mainPicture;
     ImageView mainPhoto;
     ImageButton deleteMainPhotoButton;
-
-    Button roomsPhotoButton, roomsFileButton;
     RecyclerView roomsPhotosRV;
     List<RoomsPhotos> roomsPhotosList = new ArrayList<>();
     RoomsPhotosAdapter roomsPhotosAdapter;
 
+    boolean isSold, isCreate;
     CheckBox soldCheckBox;
-
-
-    boolean isSold;
     String saleDate;
-
-    boolean isCreate;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -94,21 +81,10 @@ public class CreateActivity extends AppCompatActivity {
         findViewById();
         setViewModel();
         setBackButton();
-        setMainPhotoButton();
-        setMainFileButton();
-        initListRoomsPhotos();
         getRealEstate();
-        setRoomsPhotoButton();
-        setRoomsFileButton();
+        setPhotoButtons();
+        initListRoomsPhotos();
         setDeleteMainPhotoButton();
-    }
-
-    private void getRealEstate() {
-        String id = getIntent().getStringExtra(EXTRA_REAL_ESTATE);
-        if (id != null) {
-            realEstateViewModel.getRealEstate(id).observe(this, this::setView);
-        } else
-            setView(null);
     }
 
     private void findViewById() {
@@ -142,6 +118,16 @@ public class CreateActivity extends AppCompatActivity {
         this.realEstateViewModel = ViewModelProviders.of(this, viewModelFactory).get(RealEstateViewModel.class);
     }
 
+    private void setBackButton() {
+        backButton.setOnClickListener(v -> quit());
+    }
+
+    private void getRealEstate() {
+        String id = getIntent().getStringExtra(EXTRA_REAL_ESTATE);
+        if (id != null) realEstateViewModel.getRealEstate(id).observe(this, this::setView);
+        else setView(null);
+    }
+
     private void setView(RealEstate realEstate) {
         if (realEstate != null) {
             typeInput.setText(realEstate.getType());
@@ -155,17 +141,12 @@ public class CreateActivity extends AppCompatActivity {
             bathroomsInput.setText(String.valueOf(realEstate.getBathrooms()));
             bedroomsInput.setText(String.valueOf(realEstate.getBedrooms()));
             descriptionInput.setText(realEstate.getDescriptions());
-            Glide.with(this)
-                    .load(Utils.setUrl(realEstate.getMainPhoto()))
-                    .centerCrop()
-                    .into(mainPhoto);
-            setViewForMainPhoto();
+            mainPicture = realEstate.getMainPhoto();
+            setViewForMainPhoto(true);
             roomsPhotosList.addAll(realEstate.getRoomsPhotosList());
             roomsPhotosRV.setVisibility(View.VISIBLE);
 
-            if (realEstate.isSold())
-                soldCheckBox.setVisibility(View.GONE);
-
+            if (realEstate.isSold()) soldCheckBox.setVisibility(View.GONE);
 
             setChips(realEstate);
             setValidationButton(realEstate);
@@ -177,14 +158,6 @@ public class CreateActivity extends AppCompatActivity {
         setTypeInput();
     }
 
-    private void setBackButton() {
-        backButton.setOnClickListener(v -> {
-            finish();
-            Intent intent = new Intent(this.getApplicationContext(), MainActivity.class);
-            startActivity(intent);
-        });
-    }
-
     private void setTypeInput() {
         String[] types = new String[]{"HOUSE", "FLAT", "STUDIO", "DUPLEX", "TRIPLEX"};
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, R.layout.dropdown_item, types);
@@ -194,9 +167,9 @@ public class CreateActivity extends AppCompatActivity {
 
     private void setChips(RealEstate realEstate) {
         if (realEstate != null) {
-            for (int z = 0; z < chipGroup.getChildCount(); z++) {
-                Chip chip = (Chip) chipGroup.getChildAt(z);
-                if (realEstate.getPointsOfInterest().contains(chip.getText())) {
+            for (int i = 0; i < chipGroup.getChildCount(); i++) {
+                Chip chip = (Chip) chipGroup.getChildAt(i);
+                if (realEstate.getPointsOfInterest().contains(chip.getText().toString())) {
                     chip.setChecked(true);
                 }
             }
@@ -204,26 +177,31 @@ public class CreateActivity extends AppCompatActivity {
 
         for (int i = 0; i < chipGroup.getChildCount(); i++) {
             Chip chip = (Chip) chipGroup.getChildAt(i);
-            if (chip.isChecked())
-                pointsOfInterestList.add(chip.getText().toString());
+            if (chip.isChecked()) pointsOfInterestList.add(chip.getText().toString());
 
             chip.setOnCheckedChangeListener((view, isChecked) -> {
-                if (isChecked) {
-                    pointsOfInterestList.add(view.getText().toString());
-                } else
-                    pointsOfInterestList.remove(String.valueOf(view.getText()));
+                if (isChecked) pointsOfInterestList.add(view.getText().toString());
+                else pointsOfInterestList.remove(String.valueOf(view.getText()));
             });
         }
+    }
+
+    private void initListRoomsPhotos() {
+        roomsPhotosAdapter = new RoomsPhotosAdapter(roomsPhotosList, true);
+        roomsPhotosRV.setAdapter(roomsPhotosAdapter);
+    }
+
+    private void setPhotoButtons() {
+        mainPhotoButton.setOnClickListener(v -> cameraMainPermission());
+        mainFileButton.setOnClickListener(v -> fileMainPermission());
+        roomsPhotoButton.setOnClickListener(v -> cameraRoomPermission());
+        roomsFileButton.setOnClickListener(v -> fileRoomPermission());
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this);
-    }
-
-    private void setMainPhotoButton() {
-        mainPhotoButton.setOnClickListener(v -> cameraMainPermission());
     }
 
     @AfterPermissionGranted(RC_MAIN_CAMERA)
@@ -236,10 +214,6 @@ public class CreateActivity extends AppCompatActivity {
         }
     }
 
-    private void setMainFileButton() {
-        mainFileButton.setOnClickListener(v -> fileMainPermission());
-    }
-
     @AfterPermissionGranted(RC_MAIN_FILE)
     public void fileMainPermission() {
         if (!EasyPermissions.hasPermissions(this, STORAGE_PERMS)) {
@@ -250,25 +224,17 @@ public class CreateActivity extends AppCompatActivity {
         }
     }
 
-    private void setRoomsPhotoButton() {
-        roomsPhotoButton.setOnClickListener(v -> cameraRoomPermission());
-    }
-
     @AfterPermissionGranted(RC_ROOM_CAMERA)
     public void cameraRoomPermission() {
         if (!EasyPermissions.hasPermissions(this, CAMERA_PERMS)) {
             EasyPermissions.requestPermissions(this, "a", RC_ROOM_CAMERA, CAMERA_PERMS);
         } else {
-            if (!roomPhotoDescriptionInput.getText().toString().isEmpty()) {
+            if (!String.valueOf(roomPhotoDescriptionInput.getText()).isEmpty()) {
                 Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
                 startActivityForResult(intent, RC_ROOM_CAMERA);
             } else
-                Toast.makeText(this, "Complete the field first", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, R.string.rooms_photo_error, Toast.LENGTH_SHORT).show();
         }
-    }
-
-    private void setRoomsFileButton() {
-        roomsFileButton.setOnClickListener(v -> fileRoomPermission());
     }
 
     @AfterPermissionGranted(RC_ROOM_FILE)
@@ -276,11 +242,11 @@ public class CreateActivity extends AppCompatActivity {
         if (!EasyPermissions.hasPermissions(this, STORAGE_PERMS)) {
             EasyPermissions.requestPermissions(this, "b", RC_ROOM_FILE, STORAGE_PERMS);
         } else {
-            if (!roomPhotoDescriptionInput.getText().toString().isEmpty()) {
+            if (!String.valueOf(roomPhotoDescriptionInput.getText()).isEmpty()) {
                 Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
                 startActivityForResult(intent, RC_ROOM_FILE);
             } else
-                Toast.makeText(this, "Complete the field first", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, R.string.rooms_photo_error, Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -292,83 +258,63 @@ public class CreateActivity extends AppCompatActivity {
 
     private void handleResponse(int requestCode, int resultCode, Intent data) {
         if (requestCode == RC_MAIN_FILE) {
-            if (resultCode == RESULT_OK) {
-                uri = data.getData();
-                realEstateViewModel.uploadImageInStorage(uri).observe(this, uuid -> {
-                    mainPicture = uuid;
-                    Glide.with(this).load(Utils.setUrl(mainPicture)).into(mainPhoto);
-                });
-                setViewForMainPhoto();
-            } else
-                Toast.makeText(this, "aa", Toast.LENGTH_SHORT).show();
+            if (resultCode == RESULT_OK) addPhoto(null, data.getData(), true);
+            else Toast.makeText(this, R.string.error, Toast.LENGTH_SHORT).show();
 
         } else if (requestCode == RC_MAIN_CAMERA) {
-            if (resultCode == RESULT_OK) {
-                Bitmap bitmap = (Bitmap) data.getExtras().get("data");
-                uri = Utils.convertBitmapToUri(bitmap, this);
-                realEstateViewModel.uploadImageInStorage(uri).observe(this, uuid -> {
-                    mainPicture = uuid;
-                    Glide.with(this).load(Utils.setUrl(mainPicture)).into(mainPhoto);
-                });
-                setViewForMainPhoto();
-            } else
-                Toast.makeText(this, "aa", Toast.LENGTH_SHORT).show();
+            if (resultCode == RESULT_OK)
+                addPhoto((Bitmap) data.getExtras().get("data"), null, true);
+            else Toast.makeText(this, R.string.error, Toast.LENGTH_SHORT).show();
 
         } else if (requestCode == RC_ROOM_FILE) {
-            if (resultCode == RESULT_OK) {
-                realEstateViewModel.uploadImageInStorage(data.getData()).observe(this, uuid -> {
-                    RoomsPhotos roomsPhotos = new RoomsPhotos(uuid,
-                            Objects.requireNonNull(roomPhotoDescriptionInput.getText()).toString()
-                    );
-                    addRoomsPhotos(roomsPhotos);
-                    roomPhotoDescriptionInput.getText().clear();
-                });
-                roomsPhotosRV.setVisibility(View.VISIBLE);
-            } else
-                Toast.makeText(this, "aa", Toast.LENGTH_SHORT).show();
+            if (resultCode == RESULT_OK) addPhoto(null, data.getData(), false);
+            else Toast.makeText(this, R.string.error, Toast.LENGTH_SHORT).show();
 
         } else if (requestCode == RC_ROOM_CAMERA) {
-            if (resultCode == RESULT_OK) {
-                Bitmap bitmap = (Bitmap) data.getExtras().get("data");
-                realEstateViewModel.uploadImageInStorage(Utils.convertBitmapToUri(bitmap, this)).observe(this, uuid -> {
-                    RoomsPhotos roomsPhotos = new RoomsPhotos(uuid,
-                            roomPhotoDescriptionInput.getText().toString()
-                    );
-                    Log.e("handleResponse: ", roomsPhotos.getDescription().toString());
-                    addRoomsPhotos(roomsPhotos);
-                    roomPhotoDescriptionInput.getText().clear();
-                });
-                roomsPhotosRV.setVisibility(View.VISIBLE);
-            }
+            if (resultCode == RESULT_OK)
+                addPhoto((Bitmap) data.getExtras().get("data"), null, false);
+            else Toast.makeText(this, R.string.error, Toast.LENGTH_SHORT).show();
         }
     }
 
-    private void setViewForMainPhoto() {
-        mainPhotoButton.setVisibility(View.GONE);
-        mainFileButton.setVisibility(View.GONE);
-        mainPhoto.setVisibility(View.VISIBLE);
-        deleteMainPhotoButton.setVisibility(View.VISIBLE);
-    }
-
-    private void initListRoomsPhotos() {
-        roomsPhotosAdapter = new RoomsPhotosAdapter(roomsPhotosList, true);
-        roomsPhotosRV.setAdapter(roomsPhotosAdapter);
-    }
-
     @SuppressLint("NotifyDataSetChanged")
-    private void addRoomsPhotos(RoomsPhotos roomsPhotos) {
-        roomsPhotosList.add(roomsPhotos);
-        roomsPhotosAdapter.notifyDataSetChanged();
+    private void addPhoto(Bitmap bitmap, Uri uri, boolean isMain) {
+        if (bitmap != null) uri = Utils.convertBitmapToUri(bitmap, this);
+
+        realEstateViewModel.uploadImageInStorage(uri).observe(this, uuid -> {
+            if (isMain) {
+                mainPicture = uuid;
+                setViewForMainPhoto(true);
+            } else {
+                RoomsPhotos roomsPhotos = new RoomsPhotos(
+                        uuid, Objects.requireNonNull(roomPhotoDescriptionInput.getText()).toString());
+
+                roomsPhotosList.add(roomsPhotos);
+                roomsPhotosAdapter.notifyDataSetChanged();
+                roomPhotoDescriptionInput.getText().clear();
+                roomsPhotosRV.setVisibility(View.VISIBLE);
+            }
+        });
     }
 
     private void setDeleteMainPhotoButton() {
-        deleteMainPhotoButton.setOnClickListener(v -> {
+        deleteMainPhotoButton.setOnClickListener(v -> setViewForMainPhoto(false));
+    }
+
+    private void setViewForMainPhoto(boolean isPhotoTaken) {
+        if (isPhotoTaken) {
+            mainPhotoButton.setVisibility(View.GONE);
+            mainFileButton.setVisibility(View.GONE);
+            Glide.with(this).load(Utils.setPhotoUrl(mainPicture)).centerCrop().into(mainPhoto);
+            mainPhoto.setVisibility(View.VISIBLE);
+            deleteMainPhotoButton.setVisibility(View.VISIBLE);
+        } else {
             mainPhotoButton.setVisibility(View.VISIBLE);
             mainFileButton.setVisibility(View.VISIBLE);
             mainPhoto.setImageDrawable(null);
             mainPhoto.setVisibility(View.GONE);
             deleteMainPhotoButton.setVisibility(View.GONE);
-        });
+        }
     }
 
     private void setValidationButton(RealEstate realEstate) {
@@ -401,7 +347,7 @@ public class CreateActivity extends AppCompatActivity {
                     || String.valueOf(postalCodeInput.getText()).equals("")
                     || String.valueOf(countryInput.getText()).equals("")
             ) {
-                Toast.makeText(this, "some fields are empty", Toast.LENGTH_LONG).show();
+                Toast.makeText(this, R.string.empty_fields, Toast.LENGTH_LONG).show();
             } else {
                 String type = String.valueOf(typeInput.getText());
                 String description = String.valueOf(descriptionInput.getText());
@@ -434,7 +380,7 @@ public class CreateActivity extends AppCompatActivity {
                             .descriptions(description)
                             .mainPhoto(mainPicture)
                             .dollarPrice(dollarPrice)
-                            .euroPrice(Utils.convertDollarToEuro((int) dollarPrice))
+                            .euroPrice(Utils.convertDollarToEuro(dollarPrice))
                             .isSold(isSold)
                             .surface(surface)
                             .roomsPhotosList(roomsPhotosList)
@@ -455,13 +401,17 @@ public class CreateActivity extends AppCompatActivity {
                             .build();
                     realEstateViewModel.createRealEstate(newRealEstate);
                     sendNotification();
-                    finish();
-                    Intent intent = new Intent(this.getApplicationContext(), MainActivity.class);
-                    startActivity(intent);
+                    quit();
                 } else
-                    Toast.makeText(this, "check the adress", Toast.LENGTH_LONG).show();
+                    Toast.makeText(this, R.string.adress_error, Toast.LENGTH_LONG).show();
             }
         });
+    }
+
+    public void quit() {
+        finish();
+        Intent intent = new Intent(this.getApplicationContext(), MainActivity.class);
+        startActivity(intent);
     }
 
     public void sendNotification() {

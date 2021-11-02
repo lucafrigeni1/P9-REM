@@ -64,7 +64,6 @@ public class RealEstateDataRepository {
         realEstateDAO.insertRealEstate(realEstate);
     }
 
-    //SYNCHRONIZE WITH FIREBASE
     public void synchroniseWithFirebase(List<RealEstate> roomList) {
         CollectionReference realEstateCollectionReference =
                 FirebaseFirestore.getInstance().collection("realEstate");

@@ -3,10 +3,8 @@ package com.openclassrooms.realestatemanager.ui.activity;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.CheckBox;
 import android.widget.ImageButton;
@@ -20,10 +18,9 @@ import androidx.core.widget.NestedScrollView;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
-import androidx.lifecycle.ViewModelProviders;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.firebase.ui.auth.AuthUI;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
@@ -32,7 +29,7 @@ import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.slider.RangeSlider;
-import com.google.firebase.auth.FirebaseUser;
+import com.openclassrooms.realestatemanager.FiltersUtils;
 import com.openclassrooms.realestatemanager.R;
 import com.openclassrooms.realestatemanager.Utils;
 import com.openclassrooms.realestatemanager.di.Injections;
@@ -46,8 +43,6 @@ import com.openclassrooms.realestatemanager.ui.fragment.RealEstateListFragment;
 
 import java.text.NumberFormat;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Currency;
 import java.util.List;
 import java.util.Locale;
 
@@ -89,9 +84,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         setContentView(R.layout.activity_main);
         findViewById();
         Utils.isConvertedInEuro = false;
-        setBottomSheetBehavior();
         setBottomNavigation();
-        setTopAppBar();
+        setTopNavigation();
         setViewModel();
         isMapsFragmentVisible = false;
         getRealEstatesForFilters();
@@ -117,16 +111,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         soldFilter = findViewById(R.id.checkbox);
         filterButton = findViewById(R.id.validation_button);
         topChipGroup = findViewById(R.id.top_chip_group);
-    }
 
-    private void setBottomSheetBehavior() {
-        bottomSheetBehavior = BottomSheetBehavior.from(bottomSheet);
-        bottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
+        View header = navigationView.inflateHeaderView(R.layout.header_navigation_drawer);
+        headerName = header.findViewById(R.id.user_name);
+        headerMail = header.findViewById(R.id.user_mail);
     }
 
     private void setViewModel() {
         ViewModelFactory viewModelFactory = Injections.provideViewModelFactory(this);
-        this.realEstateViewModel = ViewModelProviders.of(this, viewModelFactory).get(RealEstateViewModel.class);
+        this.realEstateViewModel = new ViewModelProvider(this, viewModelFactory).get(RealEstateViewModel.class);
         //realEstateViewModel.getRealEstateList(null).observe(this, this::databaseSynchronisation);
     }
 
@@ -144,102 +137,56 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     public void setRealEstates(List<RealEstate> realEstatesList) {
         initFragment();
-        if (isMapsFragmentVisible) {
-            setFragment(mapsFragment);
-        } else
-            setFragment(listFragment);
+        if (isMapsFragmentVisible) setFragment(mapsFragment);
+        else setFragment(listFragment);
+
         mapsFragment.setRealEstates(realEstatesList);
         listFragment.setRealEstateList(realEstatesList);
-
-
     }
 
-    //SETVALUES DANS UNE AUTRE METHODE ?
     private void setFilterBottomSheet(List<RealEstate> realEstatesList) {
-        int lastItem = realEstatesList.size() - 1;
-
         if (!realEstatesList.isEmpty()) {
-            Collections.sort(realEstatesList, new RealEstate.PriceComparator());
-            if (Utils.isConvertedInEuro) {
-                minPriceFilter = realEstatesList.get(0).getEuroPrice();
-                maxPriceFilter = realEstatesList.get(lastItem).getEuroPrice() + 1;
-            } else {
-                minPriceFilter = realEstatesList.get(0).getDollarPrice();
-                maxPriceFilter = realEstatesList.get(lastItem).getDollarPrice() + 1;
-            }
+            minPriceFilter = FiltersUtils.initFiltersValues(realEstatesList, "price", true);
+            maxPriceFilter = FiltersUtils.initFiltersValues(realEstatesList, "price", false);
+            minSurfaceFilter = FiltersUtils.initFiltersValues(realEstatesList, "surface", true);
+            maxSurfaceFilter = FiltersUtils.initFiltersValues(realEstatesList, "surface", false);
+            minRoomsFilter = FiltersUtils.initFiltersValues(realEstatesList, "rooms", true);
+            maxRoomsFilter = FiltersUtils.initFiltersValues(realEstatesList, "rooms", false);
+            minBathRoomsFilter = FiltersUtils.initFiltersValues(realEstatesList, "bathrooms", true);
+            maxBathRoomsFilter = FiltersUtils.initFiltersValues(realEstatesList, "bathrooms", false);
+            minBedRoomsFilter = FiltersUtils.initFiltersValues(realEstatesList, "bedrooms", true);
+            maxBedRoomsFilter = FiltersUtils.initFiltersValues(realEstatesList, "bedrooms", false);
 
-            Collections.sort(realEstatesList, new RealEstate.SurfaceComparator());
-            minSurfaceFilter = (float) realEstatesList.get(0).getSurface();
-            maxSurfaceFilter = (float) realEstatesList.get(lastItem).getSurface() + 1;
-
-            Collections.sort(realEstatesList, new RealEstate.RoomsComparator());
-            minRoomsFilter = realEstatesList.get(0).getRooms();
-            maxRoomsFilter = realEstatesList.get(lastItem).getRooms() + 1;
-
-            Collections.sort(realEstatesList, new RealEstate.BathRoomsComparator());
-            minBathRoomsFilter = realEstatesList.get(0).getBathrooms();
-            maxBathRoomsFilter = realEstatesList.get(lastItem).getBathrooms() + 1;
-
-            Collections.sort(realEstatesList, new RealEstate.BedRoomsComparator());
-            minBedRoomsFilter = realEstatesList.get(0).getBedrooms();
-            maxBedRoomsFilter = realEstatesList.get(lastItem).getBedrooms() + 1;
-
-            priceSlider.setValueFrom(minPriceFilter);
-            priceSlider.setValueTo(maxPriceFilter);
-            priceSlider.setValues(minPriceFilter, maxPriceFilter);
-            priceSlider.setLabelFormatter(value -> {
-                NumberFormat currencyformat = NumberFormat.getCurrencyInstance();
-                if (Utils.isConvertedInEuro) {
-                    currencyformat.setCurrency(Currency.getInstance("EUR"));
-                } else
-                    currencyformat.setCurrency(Currency.getInstance("USD"));
-                return currencyformat.format(value);
-            });
-
-            surfaceSlider.setValueFrom(minSurfaceFilter);
-            surfaceSlider.setValueTo(maxSurfaceFilter);
-            surfaceSlider.setValues(minSurfaceFilter, maxSurfaceFilter);
-
-            roomsSlider.setValueFrom(minRoomsFilter);
-            roomsSlider.setValueTo(maxRoomsFilter);
-            roomsSlider.setValues(minRoomsFilter, maxRoomsFilter);
-            roomsSlider.setStepSize(1);
-
-            bathroomsSlider.setValueFrom(minBathRoomsFilter);
-            bathroomsSlider.setValueTo(maxBathRoomsFilter);
-            bathroomsSlider.setValues(minBathRoomsFilter, maxBathRoomsFilter);
-            bathroomsSlider.setStepSize(1);
-
-            bedroomsSlider.setValueFrom(minBedRoomsFilter);
-            bedroomsSlider.setValueTo(maxBedRoomsFilter);
-            bedroomsSlider.setValues(minBedRoomsFilter, maxBedRoomsFilter);
-            bedroomsSlider.setStepSize(1);
+            FiltersUtils.setSlider(priceSlider, minPriceFilter, maxPriceFilter, false, true);
+            FiltersUtils.setSlider(surfaceSlider, minSurfaceFilter, maxSurfaceFilter, false, false);
+            FiltersUtils.setSlider(roomsSlider, minRoomsFilter, maxRoomsFilter, true, false);
+            FiltersUtils.setSlider(bathroomsSlider, minBathRoomsFilter, maxBathRoomsFilter, true, false);
+            FiltersUtils.setSlider(bedroomsSlider, minBedRoomsFilter, maxBedRoomsFilter, true, false);
         }
 
+        FiltersUtils.setTypeFilter(typeFilter, this);
         cityFilter.getEditableText().clear();
-        typeFilter.getText().clear();
-
-        String[] types = new String[]{"HOUSE", "FLAT", "STUDIO", "DUPLEX", "TRIPLEX"};
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, R.layout.dropdown_item, types);
-        typeFilter.setAdapter(adapter);
-        typeFilter.setDropDownBackgroundResource(R.color.colorPrimary800);
+        soldFilter.setChecked(false);
 
         for (int i = 0; i < bottomSheetChipGroup.getChildCount(); i++) {
             Chip chip = (Chip) bottomSheetChipGroup.getChildAt(i);
             chip.setChecked(false);
         }
 
-        soldFilter.setChecked(false);
+        setList();
+        setFilterButton(realEstatesList);
+    }
 
+    private void setFilterButton(List<RealEstate> realEstatesList){
         filterButton.setOnClickListener(v -> {
             if (!realEstatesList.isEmpty()) {
                 isFilterListShowing = true;
-                getFilteredValues();
-                getRealEstatesForLists(queryFilter);
+                setList();
             }
         });
+    }
 
-
+    private void setList(){
         if (isFilterListShowing) {
             getFilteredValues();
             getRealEstatesForLists(queryFilter);
@@ -278,14 +225,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         bottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
     }
 
+    @SuppressLint("StringFormatMatches")
     private void setChipGroup(List<String> pointsOfInterestList) {
         topChipGroup.removeAllViews();
 
         Chip clearChip = new Chip(this);
-        clearChip.setText("Clear");
+        clearChip.setText(getString(R.string.clear));
         clearChip.setCloseIconVisible(true);
-        clearChip.setChipBackgroundColorResource(R.color.colorPrimary800);
-        clearChip.setTextColor(getResources().getColor(R.color.colorPrimary100));
+        clearChip.setChipBackgroundColorResource(R.color.colorPrimary400);
+        clearChip.setTextColor(getResources().getColor(R.color.colorPrimary800));
         topChipGroup.addView(clearChip);
 
         clearChip.setOnClickListener(v -> {
@@ -297,81 +245,90 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         if (minPriceFilter != queryFilter.getMinPrice()) {
             if (Utils.isConvertedInEuro) {
-                topChipGroup.addView(Utils.chipGenerator(NumberFormat.getNumberInstance(Locale.FRANCE).format(queryFilter.getMinPrice()), " €", false, true, this));
+                topChipGroup.addView(FiltersUtils.chipGenerator(getString(R.string.euro_price,
+                        NumberFormat.getNumberInstance(Locale.FRANCE).format(queryFilter.getMinPrice())), true,  this));
             } else
-                topChipGroup.addView(Utils.chipGenerator(NumberFormat.getNumberInstance(Locale.FRANCE).format(queryFilter.getMinPrice()), " $", false, true, this));
+                topChipGroup.addView(FiltersUtils.chipGenerator(getString(R.string.dollar_price,
+                        NumberFormat.getNumberInstance(Locale.FRANCE).format(queryFilter.getMinPrice())), true,  this));
         }
 
         if (maxPriceFilter != queryFilter.getMaxPrice()) {
             if (Utils.isConvertedInEuro) {
-                topChipGroup.addView(Utils.chipGenerator(NumberFormat.getNumberInstance(Locale.FRANCE).format(queryFilter.getMaxPrice()), " €", false, false, this));
+                topChipGroup.addView(FiltersUtils.chipGenerator(getString(R.string.euro_price,
+                        NumberFormat.getNumberInstance(Locale.FRANCE).format(queryFilter.getMaxPrice())), false,  this));
             } else
-                topChipGroup.addView(Utils.chipGenerator(NumberFormat.getNumberInstance(Locale.FRANCE).format(queryFilter.getMaxPrice()), " $", false, false, this));
+                topChipGroup.addView(FiltersUtils.chipGenerator(getString(R.string.dollar_price,
+                        NumberFormat.getNumberInstance(Locale.FRANCE).format(queryFilter.getMaxPrice())), false,  this));
         }
 
         if (minSurfaceFilter != queryFilter.getMinSurface())
-            topChipGroup.addView(Utils.chipGenerator(String.valueOf((int) queryFilter.getMinSurface()), "m²", false, true, this));
+            topChipGroup.addView(FiltersUtils.chipGenerator(
+                    getString(R.string.surface, String.valueOf((int) queryFilter.getMinSurface())), true, this));
 
         if (maxSurfaceFilter != queryFilter.getMaxSurface())
-            topChipGroup.addView(Utils.chipGenerator(String.valueOf((int) queryFilter.getMaxSurface()), "m²", false, false, this));
+            topChipGroup.addView(FiltersUtils.chipGenerator(
+                    getString(R.string.surface, String.valueOf((int) queryFilter.getMaxSurface())), false, this));
 
         if (minRoomsFilter != queryFilter.getMinRooms())
-            topChipGroup.addView(Utils.chipGenerator(String.valueOf(queryFilter.getMinRooms()), " rooms", false, true, this));
+            topChipGroup.addView(FiltersUtils.chipGenerator(
+                    getString(R.string.rooms, String.valueOf(queryFilter.getMinRooms())), true, this));
 
         if (maxRoomsFilter != queryFilter.getMaxRooms())
-            topChipGroup.addView(Utils.chipGenerator(String.valueOf(queryFilter.getMaxRooms()), " rooms", false, false, this));
+            topChipGroup.addView(FiltersUtils.chipGenerator(
+                    getString(R.string.rooms, String.valueOf(queryFilter.getMaxRooms())), false, this));
 
         if (minBathRoomsFilter != queryFilter.getMinBathrooms())
-            topChipGroup.addView(Utils.chipGenerator(String.valueOf(queryFilter.getMinBathrooms()), " bathrooms", false, true, this));
+            topChipGroup.addView(FiltersUtils.chipGenerator(
+                    getString(R.string.bathrooms, String.valueOf(queryFilter.getMinBathrooms())),true, this));
 
         if (maxBathRoomsFilter != queryFilter.getMaxBathrooms())
-            topChipGroup.addView(Utils.chipGenerator(String.valueOf(queryFilter.getMaxBathrooms()), " bathrooms", false, false, this));
+            topChipGroup.addView(FiltersUtils.chipGenerator(
+                    getString(R.string.bathrooms, String.valueOf(queryFilter.getMaxBathrooms())),false, this));
 
         if (minBedRoomsFilter != queryFilter.getMinBedrooms())
-            topChipGroup.addView(Utils.chipGenerator(String.valueOf(queryFilter.getMinBedrooms()), " bedrooms", false, true, this));
+            topChipGroup.addView(FiltersUtils.chipGenerator(
+                    getString(R.string.bedrooms, String.valueOf(queryFilter.getMinBedrooms())),true, this));
 
         if (maxBedRoomsFilter != queryFilter.getMaxBedrooms())
-            topChipGroup.addView(Utils.chipGenerator(String.valueOf(queryFilter.getMaxBedrooms()), " bedrooms", false, false, this));
+            topChipGroup.addView(FiltersUtils.chipGenerator(
+                    getString(R.string.bedrooms, String.valueOf(queryFilter.getMaxBedrooms())),false, this));
 
         if (!typeFilter.getText().toString().isEmpty())
-            topChipGroup.addView(Utils.chipGenerator(typeFilter.getText().toString(), null, true, false, this));
+            topChipGroup.addView(FiltersUtils.chipGenerator(typeFilter.getText().toString(),null, this));
 
         if (!cityFilter.getEditableText().toString().isEmpty())
-            topChipGroup.addView(Utils.chipGenerator(cityFilter.getText().toString(), null, true, false, this));
+            topChipGroup.addView(FiltersUtils.chipGenerator(cityFilter.getText().toString(),null, this));
 
         if (soldFilter.isChecked()) {
-            topChipGroup.addView(Utils.chipGenerator("Sold", null, true, false, this));
+            topChipGroup.addView(FiltersUtils.chipGenerator(getString(R.string.sold), null,this));
         } else
-            topChipGroup.addView(Utils.chipGenerator("Unsold", null, true, false, this));
+            topChipGroup.addView(FiltersUtils.chipGenerator(getString(R.string.unsold), null,this));
 
         for (String poi : pointsOfInterestList) {
-            topChipGroup.addView(Utils.chipGenerator(poi, null, true, false, this));
+            topChipGroup.addView(FiltersUtils.chipGenerator(poi, null, this));
         }
     }
 
-    private void setTopAppBar() {
-        searchButton.setOnClickListener(v -> bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED));
+    private void setTopNavigation() {
         setSupportActionBar(topAppBar);
+
         ActionBarDrawerToggle drawerToggle = new ActionBarDrawerToggle(
-                this, drawerLayout, topAppBar, R.string.open_drawer, R.string.close_drawer
+                this,
+                drawerLayout,
+                topAppBar,
+                R.string.open_drawer,
+                R.string.close_drawer
         );
         drawerLayout.addDrawerListener(drawerToggle);
         drawerToggle.syncState();
+
+        headerName.setText(Utils.getFirebaseUser().getDisplayName());
+        headerMail.setText(Utils.getFirebaseUser().getEmail());
         navigationView.setNavigationItemSelectedListener(this);
-        setHeader();
-    }
 
-    private void setHeader() {
-        View header = navigationView.inflateHeaderView(R.layout.header_navigation_drawer);
-        headerName = header.findViewById(R.id.user_name);
-        headerMail = header.findViewById(R.id.user_mail);
-
-        FirebaseUser firebaseUser = Utils.getFirebaseUser();
-
-        if (firebaseUser != null) {
-            headerName.setText(firebaseUser.getDisplayName());
-            headerMail.setText(firebaseUser.getEmail());
-        }
+        bottomSheetBehavior = BottomSheetBehavior.from(bottomSheet);
+        bottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
+        searchButton.setOnClickListener(v -> bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED));
     }
 
     @SuppressLint("NonConstantResourceId")
@@ -380,9 +337,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         int id = item.getItemId();
         switch (id) {
             case R.id.convert:
-                convert();
-                break;
-            case R.id.synchronize:
+                Utils.isConvertedInEuro = !Utils.isConvertedInEuro;
+                getRealEstatesForFilters();
                 break;
             case R.id.logout:
                 signOutUserFromFirebase();
@@ -392,30 +348,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return true;
     }
 
-    private void convert() {
-        if (Utils.isConvertedInEuro) {
-            Utils.isConvertedInEuro = false;
-        } else {
-            Utils.isConvertedInEuro = true;
-        }
-        Log.e("convert: ", String.valueOf(Utils.isConvertedInEuro));
-        getRealEstatesForFilters();
-    }
-
     private void signOutUserFromFirebase() {
-        AuthUI.getInstance()
-                .signOut(this)
-                .addOnSuccessListener(this, this.updateUIAfterRESTRequestsCompleted());
-    }
-
-    private OnSuccessListener<Void> updateUIAfterRESTRequestsCompleted() {
-        return aVoid -> startAuthenticationActivity();
-    }
-
-    private void startAuthenticationActivity() {
-        finish();
-        Intent intent = new Intent(this, AuthenticationActivity.class);
-        startActivity(intent);
+        AuthUI.getInstance().signOut(this).addOnSuccessListener(this, aVoid -> {
+            finish();
+            Intent intent = new Intent(this, AuthenticationActivity.class);
+            startActivity(intent);
+        });
     }
 
     @SuppressLint("NonConstantResourceId")
@@ -455,7 +393,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             fragmentTransaction.replace(R.id.fragment_container2, detailFragment).commit();
         } else {
             fragmentTransaction.replace(R.id.fragment_container, detailFragment).commit();
-            searchButton.setVisibility(View.GONE);
+
+            topAppBar.setVisibility(View.GONE);
             backButton.setVisibility(View.VISIBLE);
             bottomNavigationView.setVisibility(View.GONE);
             topChipGroup.setVisibility(View.GONE);
@@ -464,13 +403,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private void closeDetailFragment() {
         backButton.setOnClickListener(v -> {
-            if (isMapsFragmentVisible) {
-                setFragment(mapsFragment);
-            } else setFragment(listFragment);
-            searchButton.setVisibility(View.VISIBLE);
+            if (isMapsFragmentVisible) setFragment(mapsFragment);
+            else setFragment(listFragment);
+
+            topAppBar.setVisibility(View.VISIBLE);
             backButton.setVisibility(View.GONE);
             bottomNavigationView.setVisibility(View.VISIBLE);
             topChipGroup.setVisibility(View.VISIBLE);
         });
     }
+
 }

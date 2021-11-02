@@ -21,14 +21,13 @@ import java.util.Locale;
 
 public class RealEstateAdapter extends RecyclerView.Adapter<RealEstateAdapter.RealEstateViewHolder> {
 
+    private final OnItemClickListener listener;
     private final List<RealEstate> realEstateList;
     private int selectedPosition = -1;
 
     interface OnItemClickListener {
         void onItemClick(RealEstate realEstate);
     }
-
-    private final OnItemClickListener listener;
 
     public RealEstateAdapter(List<RealEstate> realEstateList, OnItemClickListener listener) {
         this.realEstateList = realEstateList;
@@ -58,7 +57,7 @@ public class RealEstateAdapter extends RecyclerView.Adapter<RealEstateAdapter.Re
     public class RealEstateViewHolder extends RecyclerView.ViewHolder {
         private final ConstraintLayout item;
         private final ImageView picture, soldIcon;
-        private final TextView type, location, currency, price;
+        private final TextView type, location, price;
 
         public RealEstateViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -67,33 +66,24 @@ public class RealEstateAdapter extends RecyclerView.Adapter<RealEstateAdapter.Re
             soldIcon = itemView.findViewById(R.id.sold);
             type = itemView.findViewById(R.id.real_estate_type);
             location = itemView.findViewById(R.id.real_estate_location);
-            currency = itemView.findViewById(R.id.currency);
             price = itemView.findViewById(R.id.real_estate_price);
         }
 
         public void bind(RealEstate realEstate, OnItemClickListener listener) {
-            Glide.with(picture)
-                    .load(Utils.setUrl(realEstate.getMainPhoto()))
-                    .centerCrop()
-                    .into(picture);
-
+            Glide.with(picture).load(Utils.setPhotoUrl(realEstate.getMainPhoto())).centerCrop().into(picture);
             type.setText(realEstate.getType());
             location.setText(itemView.getContext().getString(R.string.location, realEstate.getStreet(), realEstate.getCity()));
 
-
-            if (!realEstate.isSold()) {
-                soldIcon.setBackgroundResource(R.drawable.ic_baseline_not_sell_24);
-            } else
-                soldIcon.setBackgroundResource(R.drawable.ic_baseline_sell_24);
+            if (!realEstate.isSold()) soldIcon.setBackgroundResource(R.drawable.ic_baseline_not_sell_24);
+            else soldIcon.setBackgroundResource(R.drawable.ic_baseline_sell_24);
 
             if (Utils.isConvertedInEuro) {
-                price.setText(NumberFormat.getNumberInstance(Locale.FRANCE).format(realEstate.getEuroPrice()));
-                currency.setText("€");
+                price.setText(itemView.getContext().getString(R.string.euro_price_list,
+                        NumberFormat.getNumberInstance(Locale.FRANCE).format(realEstate.getEuroPrice())));
             } else {
-                price.setText(NumberFormat.getNumberInstance(Locale.FRANCE).format(realEstate.getDollarPrice()));
-                currency.setText("$");
+                price.setText(itemView.getContext().getString(R.string.dollar_price_list,
+                        NumberFormat.getNumberInstance(Locale.FRANCE).format(realEstate.getDollarPrice())));
             }
-
 
             item.setOnClickListener(v -> {
                 listener.onItemClick(realEstate);

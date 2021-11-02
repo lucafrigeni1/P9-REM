@@ -13,6 +13,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -57,7 +58,7 @@ public class DetailFragment extends Fragment implements OnMapReadyCallback {
 
     FloatingActionButton editButton;
     ImageView sold;
-    TextView type, price, currency, dates, description, roomsAndSurface, bathroomsNumber,
+    TextView type, price, dates, description, roomsAndSurface, bathroomsNumber,
             bedroomsNumber, street, city, country;
     ChipGroup chipGroup;
     ConstraintLayout nothingSelected, progressIndicatorLayout;
@@ -79,14 +80,7 @@ public class DetailFragment extends Fragment implements OnMapReadyCallback {
         super.onViewCreated(view, savedInstanceState);
         findViewById(view);
         setViewModel();
-        viewModel.getRealEstate(getArguments().getString("id")).observe(getViewLifecycleOwner(), this::setView);
-    }
-
-    @Override
-    public void onMapReady(@NonNull GoogleMap googleMap) {
-        map = googleMap;
-        map.getUiSettings().setMapToolbarEnabled(false);
-        map.getUiSettings().setMyLocationButtonEnabled(false);
+        getRealEstate();
     }
 
     private void findViewById(View view) {
@@ -98,7 +92,6 @@ public class DetailFragment extends Fragment implements OnMapReadyCallback {
         progressIndicator = view.findViewById(R.id.progress_bar);
         type = view.findViewById(R.id.type);
         price = view.findViewById(R.id.price);
-        currency = view.findViewById(R.id.currency);
         dates = view.findViewById(R.id.dates);
         sold = view.findViewById(R.id.sold);
         recyclerView = view.findViewById(R.id.photo_recyclerview);
@@ -114,37 +107,50 @@ public class DetailFragment extends Fragment implements OnMapReadyCallback {
         nothingSelected = view.findViewById(R.id.nothing_selected);
     }
 
+    private void setViewModel() {
+        ViewModelFactory viewModelFactory = Injections.provideViewModelFactory(this.getContext());
+        this.viewModel = new ViewModelProvider(this, viewModelFactory).get( RealEstateViewModel.class);
+    }
+
+    private void getRealEstate(){
+        assert getArguments() != null;
+        viewModel.getRealEstate((getArguments()).getString("id")).observe(getViewLifecycleOwner(), this::setView);
+    }
+
+    @Override
+    public void onMapReady(@NonNull GoogleMap googleMap) {
+        map = googleMap;
+        map.getUiSettings().setMapToolbarEnabled(false);
+        map.getUiSettings().setMyLocationButtonEnabled(false);
+    }
+
     private void setView(RealEstate realEstate) {
         progressIndicatorLayout.setVisibility(View.GONE);
-
 
         if (realEstate != null) {
             type.setText(realEstate.getType());
 
-            if (Utils.isConvertedInEuro) {
-                price.setText(NumberFormat.getNumberInstance(Locale.FRANCE).format(realEstate.getEuroPrice()));
-                currency.setText("€");
+            if (Utils.isConvertedInEuro){
+                price.setText(getString(R.string.euro_price,
+                        NumberFormat.getNumberInstance(Locale.FRANCE).format(realEstate.getEuroPrice())));
             } else {
-                price.setText(NumberFormat.getNumberInstance(Locale.FRANCE).format(realEstate.getDollarPrice()));
-                currency.setText("$");
+                price.setText(getString(R.string.dollar_price,
+                        NumberFormat.getNumberInstance(Locale.FRANCE).format(realEstate.getDollarPrice())));
             }
 
-            if (!realEstate.isSold()) {
-                sold.setBackgroundResource(R.drawable.ic_baseline_not_sell_24);
-            } else
-                sold.setBackgroundResource(R.drawable.ic_baseline_sell_24);
+            if (!realEstate.isSold()) sold.setBackgroundResource(R.drawable.ic_baseline_not_sell_24);
+            else sold.setBackgroundResource(R.drawable.ic_baseline_sell_24);
 
-            if (realEstate.getSaleDate().isEmpty()) {
-                dates.setText(realEstate.getRecordDate());
-            } else
-                dates.setText(realEstate.getRecordDate() + " - " + realEstate.getSaleDate());
+            if (realEstate.getSaleDate().isEmpty()) dates.setText(realEstate.getRecordDate());
+            else dates.setText(String.format("%s - %s", realEstate.getRecordDate(), realEstate.getSaleDate()));
 
             List<RoomsPhotos> roomsPhotosList = realEstate.getRoomsPhotosList();
             roomsPhotosAdapter = new RoomsPhotosAdapter(roomsPhotosList, false);
             recyclerView.setAdapter(roomsPhotosAdapter);
 
             description.setText(realEstate.getDescriptions());
-            roomsAndSurface.setText(getString(R.string.surface_text, String.valueOf(realEstate.getSurface()), String.valueOf(realEstate.getRooms())));
+            roomsAndSurface.setText(getString(R.string.surface_text,
+                    String.valueOf(realEstate.getSurface()), String.valueOf(realEstate.getRooms())));
             bathroomsNumber.setText(String.valueOf(realEstate.getBathrooms()));
             bedroomsNumber.setText(String.valueOf(realEstate.getBedrooms()));
             street.setText(realEstate.getStreet());
@@ -160,8 +166,7 @@ public class DetailFragment extends Fragment implements OnMapReadyCallback {
                 chipGroup.addView(chip);
             }
             setEditButton(realEstate);
-        } else
-            nothingSelected.setVisibility(View.VISIBLE);
+        } else nothingSelected.setVisibility(View.VISIBLE);
 
         map.addMarker(new MarkerOptions().position(latLng));
         map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, DEFAULT_ZOOM));
@@ -174,13 +179,7 @@ public class DetailFragment extends Fragment implements OnMapReadyCallback {
                 intent.putExtra(CreateActivity.EXTRA_REAL_ESTATE, realEstate.getId());
                 v.getContext().startActivity(intent);
             } else
-                Toast.makeText(this.getContext(), "aaa", Toast.LENGTH_LONG).show();
+                Toast.makeText(this.getContext(), R.string.error_no_internet, Toast.LENGTH_LONG).show();
         });
     }
-
-    private void setViewModel() {
-        ViewModelFactory viewModelFactory = Injections.provideViewModelFactory(this.getContext());
-        this.viewModel = ViewModelProviders.of(this, viewModelFactory).get(RealEstateViewModel.class);
-    }
-
 }
