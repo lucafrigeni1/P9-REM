@@ -1,5 +1,7 @@
 package com.openclassrooms.realestatemanager.database;
 
+import android.database.Cursor;
+
 import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
 import androidx.room.Insert;
@@ -16,6 +18,9 @@ public interface RealEstateDAO {
     @Query("SELECT * FROM RealEstate")
     LiveData<List<RealEstate>> getRealEstateList();
 
+    @Query("SELECT * FROM RealEstate")
+    List<RealEstate> getRealEstateList2();
+
     @Query("SELECT * FROM RealEstate WHERE " +
             "type LIKE :type AND " +
             "(( :isConvertedInEuro = 'false' AND dollarPrice BETWEEN :minPrice AND :maxPrice)" +
@@ -25,8 +30,8 @@ public interface RealEstateDAO {
             "rooms BETWEEN :minRooms AND :maxRooms AND " +
             "bathrooms BETWEEN :minBathrooms AND :maxBathrooms AND " +
             "bedrooms BETWEEN :minBedrooms AND :maxBedrooms AND " +
-            "(( :isPOIEmpty = 'false' AND pointsOfInterest IN (:pointsOfInterest))" +
-            "OR ( :isPOIEmpty = 'true' AND pointsOfInterest LIKE '%')) AND " +
+            "((:isPOIEmpty = 'false' AND pointsOfInterest LIKE (:pointsOfInterest))" +
+            "OR (:isPOIEmpty = 'true')) AND " +
             "city LIKE :city"
     )
     LiveData<List<RealEstate>> getFilteredRealEstateList(
@@ -44,13 +49,16 @@ public interface RealEstateDAO {
             int maxBathrooms,
             int minBedrooms,
             int maxBedrooms,
-            List<String> pointsOfInterest,
+            String pointsOfInterest,
             String city
     );
 
     @Query("SELECT * FROM RealEstate WHERE id = :id")
     LiveData<RealEstate> getRealEstate(String id);
 
+    @Query("SELECT * FROM RealEstate WHERE id = :id")
+    Cursor getRealEstateWithCursor(String id);
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    void insertRealEstate(RealEstate realEstate);
+    long insertRealEstate(RealEstate realEstate);
 }

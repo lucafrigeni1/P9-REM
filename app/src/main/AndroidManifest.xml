@@ -15,6 +15,11 @@
         android:roundIcon="@mipmap/ic_launcher"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        
+        <provider
+            android:authorities="com.openclassrooms.realestatemanager.ContentProvider"
+            android:name=".ContentProvider"
+            android:exported="true"/>
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"

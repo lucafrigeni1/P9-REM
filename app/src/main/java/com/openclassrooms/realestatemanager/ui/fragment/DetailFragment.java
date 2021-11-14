@@ -14,7 +14,6 @@ import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -28,7 +27,7 @@ import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.progressindicator.CircularProgressIndicator;
 import com.openclassrooms.realestatemanager.R;
-import com.openclassrooms.realestatemanager.Utils;
+import com.openclassrooms.realestatemanager.utils.Utils;
 import com.openclassrooms.realestatemanager.di.Injections;
 import com.openclassrooms.realestatemanager.di.ViewModelFactory;
 import com.openclassrooms.realestatemanager.models.RealEstate;
@@ -168,8 +167,10 @@ public class DetailFragment extends Fragment implements OnMapReadyCallback {
             setEditButton(realEstate);
         } else nothingSelected.setVisibility(View.VISIBLE);
 
-        map.addMarker(new MarkerOptions().position(latLng));
-        map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, DEFAULT_ZOOM));
+        if (latLng != null) {
+            map.addMarker(new MarkerOptions().position(latLng));
+            map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, DEFAULT_ZOOM));
+        }
     }
 
     private void setEditButton(RealEstate realEstate) {

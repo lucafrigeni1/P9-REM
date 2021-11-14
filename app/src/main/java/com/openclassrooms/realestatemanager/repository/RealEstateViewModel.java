@@ -22,7 +22,7 @@ public class RealEstateViewModel extends ViewModel {
     }
 
     public LiveData<List<RealEstate>> getRealEstateList(QueryFilter queryFilter) {
-        return realEstateDataRepository.getRealEstateList(queryFilter);
+        return realEstateDataRepository.getRealEstateList(queryFilter, executor);
     }
 
     public LiveData<RealEstate> getRealEstate(String id) {
@@ -34,7 +34,7 @@ public class RealEstateViewModel extends ViewModel {
     }
 
     public void synchroniseWithFirebase(List<RealEstate> realEstateList) {
-        executor.execute(() -> realEstateDataRepository.synchroniseWithFirebase(realEstateList));
+        executor.execute(() -> realEstateDataRepository.synchroniseWithFirebase(realEstateList, executor));
     }
 
     public LiveData<String> uploadImageInStorage(Uri uri) {

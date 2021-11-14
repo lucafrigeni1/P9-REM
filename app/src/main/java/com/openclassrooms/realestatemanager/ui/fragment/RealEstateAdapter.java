@@ -12,7 +12,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.openclassrooms.realestatemanager.R;
-import com.openclassrooms.realestatemanager.Utils;
+import com.openclassrooms.realestatemanager.utils.Utils;
 import com.openclassrooms.realestatemanager.models.RealEstate;
 
 import java.text.NumberFormat;
@@ -43,10 +43,12 @@ public class RealEstateAdapter extends RecyclerView.Adapter<RealEstateAdapter.Re
 
     @Override
     public void onBindViewHolder(@NonNull RealEstateViewHolder holder, int position) {
-        holder.bind(realEstateList.get(position), listener);
         if (selectedPosition == position) {
             holder.item.setBackgroundResource(R.color.colorPrimary700);
+        } else {
+            holder.item.setBackgroundResource(R.color.colorPrimary900);
         }
+        holder.bind(realEstateList.get(position), listener);
     }
 
     @Override
@@ -85,11 +87,16 @@ public class RealEstateAdapter extends RecyclerView.Adapter<RealEstateAdapter.Re
                         NumberFormat.getNumberInstance(Locale.FRANCE).format(realEstate.getDollarPrice())));
             }
 
+            if (realEstate.getId().equals(Utils.selectedRealEstate)){
+                item.setBackgroundResource(R.color.colorPrimary700);
+            }
+
             item.setOnClickListener(v -> {
                 listener.onItemClick(realEstate);
                 notifyItemChanged(selectedPosition);
                 selectedPosition = getAdapterPosition();
                 notifyItemChanged(selectedPosition);
+                Utils.selectedRealEstate = realEstate.getId();
             });
         }
     }

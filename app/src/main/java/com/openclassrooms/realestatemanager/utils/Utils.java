@@ -1,5 +1,6 @@
-package com.openclassrooms.realestatemanager;
+package com.openclassrooms.realestatemanager.utils;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.location.Address;
@@ -27,6 +28,8 @@ public class Utils {
 
     public static boolean isConvertedInEuro;
 
+    public static String selectedRealEstate;
+
     public static FirebaseUser getFirebaseUser() {
         return FirebaseAuth.getInstance().getCurrentUser();
     }
@@ -36,9 +39,10 @@ public class Utils {
     }
 
     public static int convertEuroToDollar(int euro) {
-        return (int) Math.round(euro * 1.18);
+        return (int) Math.round(euro * 1.1765);
     }
 
+    @SuppressLint("SimpleDateFormat")
     public static String getTodayDate() {
         DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
         return dateFormat.format(new Date());

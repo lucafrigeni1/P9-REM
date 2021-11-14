@@ -1,6 +1,6 @@
 package com.openclassrooms.realestatemanager.ui.fragment;
 
-import static com.openclassrooms.realestatemanager.Utils.latLng;
+import static com.openclassrooms.realestatemanager.utils.Utils.latLng;
 
 import android.content.Context;
 import android.content.pm.PackageManager;
@@ -36,7 +36,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.openclassrooms.realestatemanager.R;
-import com.openclassrooms.realestatemanager.Utils;
+import com.openclassrooms.realestatemanager.utils.Utils;
 import com.openclassrooms.realestatemanager.di.Injections;
 import com.openclassrooms.realestatemanager.di.ViewModelFactory;
 import com.openclassrooms.realestatemanager.models.RealEstate;
@@ -105,7 +105,6 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
     }
 
     private void setMapStyle() {
-        //map.setMapStyle(MapStyleOptions.loadRawResourceStyle(this.requireContext(), R.raw.style_maps));
         map.getUiSettings().setMapToolbarEnabled(false);
         map.getUiSettings().setMyLocationButtonEnabled(false);
     }

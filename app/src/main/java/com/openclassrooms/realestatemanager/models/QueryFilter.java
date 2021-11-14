@@ -179,4 +179,8 @@ public class QueryFilter {
     public String getCity() {
         return city;
     }
+
+    public void setMaxPrice(int maxPrice) {
+        this.maxPrice = maxPrice;
+    }
 }

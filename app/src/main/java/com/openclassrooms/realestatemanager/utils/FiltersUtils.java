@@ -1,4 +1,4 @@
-package com.openclassrooms.realestatemanager;
+package com.openclassrooms.realestatemanager.utils;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -7,6 +7,7 @@ import android.widget.AutoCompleteTextView;
 
 import com.google.android.material.chip.Chip;
 import com.google.android.material.slider.RangeSlider;
+import com.openclassrooms.realestatemanager.R;
 import com.openclassrooms.realestatemanager.models.RealEstate;
 
 import java.text.NumberFormat;
@@ -95,5 +96,13 @@ public class FiltersUtils {
         chip.setChipBackgroundColorResource(R.color.colorPrimary800);
         chip.setTextColor(R.color.colorPrimary50);
         return chip;
+    }
+
+    public static String searchPOI(List<String> POI){
+        StringBuilder searchPOI = new StringBuilder("%");
+        for (String poi : POI){
+            searchPOI.append(poi).append("%");
+        }
+        return searchPOI.toString();
     }
 }

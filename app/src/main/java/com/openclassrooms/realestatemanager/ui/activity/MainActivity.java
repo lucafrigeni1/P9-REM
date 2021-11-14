@@ -29,9 +29,9 @@ import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.slider.RangeSlider;
-import com.openclassrooms.realestatemanager.FiltersUtils;
 import com.openclassrooms.realestatemanager.R;
-import com.openclassrooms.realestatemanager.Utils;
+import com.openclassrooms.realestatemanager.utils.FiltersUtils;
+import com.openclassrooms.realestatemanager.utils.Utils;
 import com.openclassrooms.realestatemanager.di.Injections;
 import com.openclassrooms.realestatemanager.di.ViewModelFactory;
 import com.openclassrooms.realestatemanager.models.QueryFilter;
@@ -76,7 +76,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             minBathRoomsFilter, maxBathRoomsFilter, minBedRoomsFilter, maxBedRoomsFilter;
 
     QueryFilter queryFilter;
-    boolean isFilterListShowing;
+    boolean isFilter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -120,28 +120,38 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private void setViewModel() {
         ViewModelFactory viewModelFactory = Injections.provideViewModelFactory(this);
         this.realEstateViewModel = new ViewModelProvider(this, viewModelFactory).get(RealEstateViewModel.class);
-        //realEstateViewModel.getRealEstateList(null).observe(this, this::databaseSynchronisation);
     }
 
-    private void databaseSynchronisation(List<RealEstate> realEstatesList) {
-        realEstateViewModel.synchroniseWithFirebase(realEstatesList);
-    }
-
-    private void getRealEstatesForLists(QueryFilter queryFilter) {
-        realEstateViewModel.getRealEstateList(queryFilter).observe(this, this::setRealEstates);
-    }
-
-    private void getRealEstatesForFilters() {
-        realEstateViewModel.getRealEstateList(null).observe(this, this::setFilterBottomSheet);
+    private void getRealEstatesForLists() {
+        if (isFilter) {
+            getFilteredValues();
+            realEstateViewModel.getRealEstateList(queryFilter).observe(this, this::setRealEstates);
+        } else {
+            realEstateViewModel.getRealEstateList(null).observe(this, realEstates -> {
+                setRealEstates(realEstates);
+            });
+        }
     }
 
     public void setRealEstates(List<RealEstate> realEstatesList) {
         initFragment();
+
         if (isMapsFragmentVisible) setFragment(mapsFragment);
         else setFragment(listFragment);
-
         mapsFragment.setRealEstates(realEstatesList);
         listFragment.setRealEstateList(realEstatesList);
+
+        if (Utils.selectedRealEstate != null){
+             for (RealEstate realEstate : realEstatesList){
+                 if (realEstate.getId().equals(Utils.selectedRealEstate)){
+                     launchDetailFragment(realEstate);
+                 }
+             }
+        }
+    }
+
+    private void getRealEstatesForFilters() {
+        realEstateViewModel.getRealEstateList(null).observe(this, this::setFilterBottomSheet);
     }
 
     private void setFilterBottomSheet(List<RealEstate> realEstatesList) {
@@ -173,25 +183,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             chip.setChecked(false);
         }
 
-        setList();
+        getRealEstatesForLists();
         setFilterButton(realEstatesList);
     }
 
     private void setFilterButton(List<RealEstate> realEstatesList){
         filterButton.setOnClickListener(v -> {
             if (!realEstatesList.isEmpty()) {
-                isFilterListShowing = true;
-                setList();
+                isFilter = true;
+                getRealEstatesForLists();
             }
         });
-    }
-
-    private void setList(){
-        if (isFilterListShowing) {
-            getFilteredValues();
-            getRealEstatesForLists(queryFilter);
-        } else
-            getRealEstatesForLists(null);
     }
 
     private void getFilteredValues() {
@@ -238,8 +240,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         clearChip.setOnClickListener(v -> {
             topChipGroup.removeAllViews();
-            isFilterListShowing = false;
-            getRealEstatesForLists(null);
+            isFilter = false;
+            getRealEstatesForLists();
             getRealEstatesForFilters();
         });
 
@@ -337,18 +339,25 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         int id = item.getItemId();
         switch (id) {
             case R.id.convert:
-                Utils.isConvertedInEuro = !Utils.isConvertedInEuro;
-                getRealEstatesForFilters();
+                convert();
                 break;
             case R.id.logout:
-                signOutUserFromFirebase();
+                logout();
                 break;
         }
         this.drawerLayout.closeDrawer(GravityCompat.START);
         return true;
     }
 
-    private void signOutUserFromFirebase() {
+    private void convert(){
+        Utils.isConvertedInEuro = !Utils.isConvertedInEuro;
+        isFilter = false;
+        topChipGroup.removeAllViews();
+        getRealEstatesForFilters();
+        getRealEstatesForLists();
+    }
+
+    private void logout() {
         AuthUI.getInstance().signOut(this).addOnSuccessListener(this, aVoid -> {
             finish();
             Intent intent = new Intent(this, AuthenticationActivity.class);
@@ -387,7 +396,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     public void launchDetailFragment(RealEstate realEstate) {
+
         detailFragment = DetailFragment.newInstance(realEstate.getId());
+
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
         if (findViewById(R.id.fragment_container2) != null) {
             fragmentTransaction.replace(R.id.fragment_container2, detailFragment).commit();
@@ -403,6 +414,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private void closeDetailFragment() {
         backButton.setOnClickListener(v -> {
+
+            Utils.selectedRealEstate = null;
+
             if (isMapsFragmentVisible) setFragment(mapsFragment);
             else setFragment(listFragment);
 
