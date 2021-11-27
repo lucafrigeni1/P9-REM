@@ -1,5 +1,6 @@
 package com.openclassrooms.realestatemanager.repository;
 
+import android.content.Context;
 import android.net.Uri;
 
 import androidx.lifecycle.LiveData;
@@ -16,15 +17,15 @@ import com.openclassrooms.realestatemanager.database.RealEstateDAO;
 import com.openclassrooms.realestatemanager.models.QueryFilter;
 import com.openclassrooms.realestatemanager.models.RealEstate;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.Executor;
 
 public class RealEstateDataRepository {
+
+    CollectionReference realEstateCollectionReference =
+            FirebaseFirestore.getInstance().collection("realEstate");
 
     private final RealEstateDAO realEstateDAO;
 
@@ -32,14 +33,39 @@ public class RealEstateDataRepository {
         this.realEstateDAO = realEstateDAO;
     }
 
-    CollectionReference realEstateCollectionReference =
-            FirebaseFirestore.getInstance().collection("realEstate");
+    public LiveData<List<RealEstate>> getRealEstateList(Executor executor, Context context) {
+        MutableLiveData<List<RealEstate>> data = new MutableLiveData<>();
+        executor.execute(() -> {
+            data.postValue(realEstateDAO.getRealEstateList());
+            if (Utils.isNetworkAvailable(context)) {
+                synchroniseWithFirebase(realEstateDAO.getRealEstateList(), executor, data);
+            }
+        });
+        return data;
+    }
 
-    public LiveData<List<RealEstate>> getRealEstateList(QueryFilter queryFilter, Executor executor) {
-        if (queryFilter != null) {
-            boolean isPOIEmpty = queryFilter.getPointsOfInterest().isEmpty();
+    public void synchroniseWithFirebase(List<RealEstate> roomList, Executor executor, MutableLiveData<List<RealEstate>> data) {
+        List<RealEstate> firebaseList = new ArrayList<>();
+        realEstateCollectionReference.get().addOnCompleteListener(task -> {
+            for (QueryDocumentSnapshot document : task.getResult()) {
+                RealEstate realEstate = document.toObject(RealEstate.class);
+                firebaseList.add(realEstate);
+            }
 
-            return this.realEstateDAO.getFilteredRealEstateList(
+            for (RealEstate firebaseListItem : firebaseList) {
+                if (!roomList.contains(firebaseListItem)) {
+                    executor.execute(() -> realEstateDAO.insertRealEstate(firebaseListItem));
+                }
+            }
+            data.setValue(roomList);
+        });
+    }
+
+    public LiveData<List<RealEstate>> getFilteredRealEstateList(QueryFilter queryFilter, Executor executor) {
+        MutableLiveData<List<RealEstate>> data = new MutableLiveData<>();
+        boolean isPOIEmpty = queryFilter.getPointsOfInterest().isEmpty();
+        executor.execute(() -> {
+            List<RealEstate> list = this.realEstateDAO.getFilteredRealEstateList(
                     Utils.isConvertedInEuro + "",
                     isPOIEmpty + "",
                     queryFilter.getType(),
@@ -57,15 +83,9 @@ public class RealEstateDataRepository {
                     FiltersUtils.searchPOI(queryFilter.getPointsOfInterest()),
                     queryFilter.getCity()
             );
-        } else {
-            MutableLiveData<List<RealEstate>> data = new MutableLiveData<>();
-            executor.execute(() -> {
-                List<RealEstate> list = realEstateDAO.getRealEstateList2();
-                data.postValue(list);
-                synchroniseWithFirebase(list, executor);
-            });
-            return data;
-        }
+            data.postValue(list);
+        });
+        return data;
     }
 
     public LiveData<RealEstate> getRealEstate(String id) {
@@ -75,45 +95,6 @@ public class RealEstateDataRepository {
     public void createRealEstate(RealEstate realEstate) {
         realEstateCollectionReference.document(realEstate.getId()).set(realEstate);
         realEstateDAO.insertRealEstate(realEstate);
-    }
-
-    public void synchroniseWithFirebase(List<RealEstate> roomList, Executor executor) {
-        List<RealEstate> firebaseList = new ArrayList<>();
-
-        CollectionReference realEstateCollectionReference = FirebaseFirestore.getInstance().collection("realEstate");
-
-        realEstateCollectionReference.get().addOnCompleteListener(task -> {
-            for (QueryDocumentSnapshot document : task.getResult()) {
-                RealEstate realEstate = document.toObject(RealEstate.class);
-                firebaseList.add(realEstate);
-            }
-
-            for (RealEstate firebaseListItem : firebaseList) {
-                if (!roomList.contains(firebaseListItem)) {
-                    executor.execute(() -> realEstateDAO.insertRealEstate(firebaseListItem));
-                }
-            }
-
-            for (RealEstate roomListItem : roomList) {
-                for (RealEstate firebaseListItem : firebaseList) {
-                    if (roomListItem.getId().equals(firebaseListItem.getId())) {
-                        try {
-                            Date date1 = new SimpleDateFormat("dd/MM/yyyy").parse(roomListItem.getLastEditDate());
-                            Date date2 = new SimpleDateFormat("dd/MM/yyyy").parse(firebaseListItem.getLastEditDate());
-
-                            if (date1.after(date2))
-                                realEstateCollectionReference.document(roomListItem.getId()).set(roomListItem);
-                            if (date1.before(date2)) {
-                                executor.execute(() -> createRealEstate(firebaseListItem));
-                            }
-
-                        } catch (ParseException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }
-            }
-        });
     }
 
     public LiveData<String> uploadImage(Uri imageUri) {

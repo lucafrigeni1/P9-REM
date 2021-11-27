@@ -1,5 +1,6 @@
 package com.openclassrooms.realestatemanager.ui.fragment;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,7 +24,7 @@ public class RealEstateAdapter extends RecyclerView.Adapter<RealEstateAdapter.Re
 
     private final OnItemClickListener listener;
     private final List<RealEstate> realEstateList;
-    private int selectedPosition = -1;
+    private static int selectedPosition = -1;
 
     interface OnItemClickListener {
         void onItemClick(RealEstate realEstate);
@@ -43,6 +44,7 @@ public class RealEstateAdapter extends RecyclerView.Adapter<RealEstateAdapter.Re
 
     @Override
     public void onBindViewHolder(@NonNull RealEstateViewHolder holder, int position) {
+        Log.e( "onBindViewHolder: ", position + " ; " + selectedPosition);
         if (selectedPosition == position) {
             holder.item.setBackgroundResource(R.color.colorPrimary700);
         } else {
@@ -85,10 +87,6 @@ public class RealEstateAdapter extends RecyclerView.Adapter<RealEstateAdapter.Re
             } else {
                 price.setText(itemView.getContext().getString(R.string.dollar_price_list,
                         NumberFormat.getNumberInstance(Locale.FRANCE).format(realEstate.getDollarPrice())));
-            }
-
-            if (realEstate.getId().equals(Utils.selectedRealEstate)){
-                item.setBackgroundResource(R.color.colorPrimary700);
             }
 
             item.setOnClickListener(v -> {

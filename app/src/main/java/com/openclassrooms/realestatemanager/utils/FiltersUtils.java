@@ -85,13 +85,13 @@ public class FiltersUtils {
     }
 
     @SuppressLint({"ResourceAsColor", "ResourceType"})
-    public static Chip chipGenerator(String a, Boolean isUpper, Context context) {
+    public static Chip chipGenerator(String chipText, Boolean isUpper, Context context) {
         Chip chip = new Chip(context);
 
         if (isUpper != null){
-            if (isUpper) chip.setText(context.getString(R.string.upper, a));
-            else chip.setText(context.getString(R.string.smaller, a));
-        } else chip.setText(a);
+            if (isUpper) chip.setText(context.getString(R.string.upper, chipText));
+            else chip.setText(context.getString(R.string.smaller, chipText));
+        } else chip.setText(chipText);
 
         chip.setChipBackgroundColorResource(R.color.colorPrimary800);
         chip.setTextColor(R.color.colorPrimary50);

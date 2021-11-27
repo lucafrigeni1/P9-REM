@@ -2,13 +2,9 @@ package com.openclassrooms.realestatemanager.ui.fragment;
 
 import static com.openclassrooms.realestatemanager.utils.Utils.latLng;
 
-import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.drawable.Drawable;
 import android.location.Location;
-import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -20,7 +16,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
@@ -57,7 +52,6 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
     private static final int DEFAULT_ZOOM = 15, PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1;
     private boolean locationPermissionGranted;
     Location location;
-    double lat, lng;
 
     FloatingActionButton floatingActionButton;
 
@@ -112,7 +106,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
     private void getDeviceLocation() {
         getLocationPermission();
         try {
-            if (Utils.isInternetAvailable(Objects.requireNonNull(this.getContext()))) {
+            if (Utils.isNetworkAvailable(Objects.requireNonNull(this.getContext()))) {
                 if (locationPermissionGranted) {
                     map.setMyLocationEnabled(true);
                     Task<Location> locationResult = fusedLocationProviderClient.getLastLocation();
@@ -120,7 +114,8 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
                         if (task.isSuccessful()) {
                             location = task.getResult();
                             if (location != null) {
-                                getAndSaveLocation();
+                                latLng = new LatLng(location.getLatitude(), location.getLongitude());
+                                map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, DEFAULT_ZOOM));
                                 setMarkers();
                             } else
                                 Toast.makeText(this.getContext(), getString(R.string.error_location), Toast.LENGTH_SHORT).show();
@@ -146,13 +141,6 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         }
     }
 
-    private void getAndSaveLocation() {
-        lat = location.getLatitude();
-        lng = location.getLongitude();
-        latLng = new LatLng(lat, lng);
-        map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, DEFAULT_ZOOM));
-    }
-
     public void setMarkers() {
         map.clear();
 
@@ -161,9 +149,9 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
                 for (RealEstate realEstate : realEstates) {
                     Bitmap bm;
                     if (realEstate.isSold()) {
-                        bm = getBitmapFromVectorDrawable(getContext(), R.drawable.ic_baseline_place_orange_24);
+                        bm = Utils.getBitmapFromVectorDrawable(getContext(), R.drawable.ic_baseline_place_orange_24);
                     } else {
-                        bm = getBitmapFromVectorDrawable(getContext(), R.drawable.ic_baseline_place_green_24);
+                        bm = Utils.getBitmapFromVectorDrawable(getContext(), R.drawable.ic_baseline_place_green_24);
                     }
 
                     LatLng latLng = new LatLng(realEstate.getLatitude(), realEstate.getLongitude());
@@ -185,20 +173,4 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
             }
         });
     }
-
-    private static Bitmap getBitmapFromVectorDrawable(Context context, int drawableId) {
-        Drawable drawable = ContextCompat.getDrawable(context, drawableId);
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-            drawable = (DrawableCompat.wrap(Objects.requireNonNull(drawable))).mutate();
-        }
-
-        Bitmap bitmap = Bitmap.createBitmap(Objects.requireNonNull(drawable).getIntrinsicWidth(),
-                drawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
-        Canvas canvas = new Canvas(bitmap);
-        drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
-        drawable.draw(canvas);
-
-        return bitmap;
-    }
-
 }

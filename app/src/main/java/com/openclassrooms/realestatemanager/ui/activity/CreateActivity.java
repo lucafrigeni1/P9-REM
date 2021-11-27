@@ -18,7 +18,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.lifecycle.ViewModelProviders;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
@@ -70,7 +70,7 @@ public class CreateActivity extends AppCompatActivity {
     List<RoomsPhotos> roomsPhotosList = new ArrayList<>();
     RoomsPhotosAdapter roomsPhotosAdapter;
 
-    boolean isSold, isCreate;
+    boolean isSold, isAlreadyCreate;
     CheckBox soldCheckBox;
     String saleDate;
 
@@ -115,7 +115,8 @@ public class CreateActivity extends AppCompatActivity {
 
     private void setViewModel() {
         ViewModelFactory viewModelFactory = Injections.provideViewModelFactory(this);
-        this.realEstateViewModel = ViewModelProviders.of(this, viewModelFactory).get(RealEstateViewModel.class);
+        this.realEstateViewModel = new ViewModelProvider(
+                this, viewModelFactory).get(RealEstateViewModel.class);
     }
 
     private void setBackButton() {
@@ -305,7 +306,10 @@ public class CreateActivity extends AppCompatActivity {
         if (isPhotoTaken) {
             mainPhotoButton.setVisibility(View.GONE);
             mainFileButton.setVisibility(View.GONE);
-            Glide.with(this).load(Utils.setPhotoUrl(mainPicture)).centerCrop().into(mainPhoto);
+            Glide.with(this)
+                    .load(Utils.setPhotoUrl(mainPicture))
+                    .centerCrop()
+                    .into(mainPhoto);
             mainPhoto.setVisibility(View.VISIBLE);
             deleteMainPhotoButton.setVisibility(View.VISIBLE);
         } else {
@@ -324,12 +328,12 @@ public class CreateActivity extends AppCompatActivity {
         if (realEstate == null) {
             id = UUID.randomUUID().toString();
             recordDate = Utils.getTodayDate();
-            isCreate = true;
+            isAlreadyCreate = false;
         } else {
             id = realEstate.getId();
             recordDate = realEstate.getRecordDate();
             mainPicture = realEstate.getMainPhoto();
-            isCreate = false;
+            isAlreadyCreate = true;
         }
 
         validationButton.setOnClickListener(v -> {
@@ -396,14 +400,12 @@ public class CreateActivity extends AppCompatActivity {
                             .longitude(longitude)
                             .recordDate(recordDate)
                             .saleDate(saleDate)
-                            .lastEditDate(Utils.getTodayDate())
                             .estateAgent(Utils.getFirebaseUser().getDisplayName())
                             .build();
                     realEstateViewModel.createRealEstate(newRealEstate);
                     sendNotification();
                     quit();
-                } else
-                    Toast.makeText(this, R.string.adress_error, Toast.LENGTH_LONG).show();
+                } else Toast.makeText(this, R.string.adress_error, Toast.LENGTH_LONG).show();
             }
         });
     }
@@ -415,6 +417,6 @@ public class CreateActivity extends AppCompatActivity {
     }
 
     public void sendNotification() {
-        Notifications.launchWorker(this, isCreate);
+        Notifications.launchWorker(this, isAlreadyCreate);
     }
 }

@@ -16,10 +16,8 @@ import java.util.List;
 public interface RealEstateDAO {
 
     @Query("SELECT * FROM RealEstate")
-    LiveData<List<RealEstate>> getRealEstateList();
+    List<RealEstate> getRealEstateList();
 
-    @Query("SELECT * FROM RealEstate")
-    List<RealEstate> getRealEstateList2();
 
     @Query("SELECT * FROM RealEstate WHERE " +
             "type LIKE :type AND " +
@@ -34,7 +32,7 @@ public interface RealEstateDAO {
             "OR (:isPOIEmpty = 'true')) AND " +
             "city LIKE :city"
     )
-    LiveData<List<RealEstate>> getFilteredRealEstateList(
+    List<RealEstate> getFilteredRealEstateList(
             String isConvertedInEuro,
             String isPOIEmpty,
             String type,

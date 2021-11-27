@@ -3,6 +3,7 @@ package com.openclassrooms.realestatemanager.ui.activity;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AutoCompleteTextView;
@@ -58,7 +59,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     RealEstateListFragment listFragment;
     MapsFragment mapsFragment;
     DetailFragment detailFragment;
-    boolean isMapsFragmentVisible;
+
 
     TextView headerName, headerMail;
 
@@ -76,7 +77,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             minBathRoomsFilter, maxBathRoomsFilter, minBedRoomsFilter, maxBedRoomsFilter;
 
     QueryFilter queryFilter;
-    boolean isFilter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,8 +87,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         setBottomNavigation();
         setTopNavigation();
         setViewModel();
-        isMapsFragmentVisible = false;
-        getRealEstatesForFilters();
+        initFragment();
+        getRealEstates();
+        setFilterButton();
         closeDetailFragment();
     }
 
@@ -122,24 +123,23 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         this.realEstateViewModel = new ViewModelProvider(this, viewModelFactory).get(RealEstateViewModel.class);
     }
 
-    private void getRealEstatesForLists() {
-        if (isFilter) {
-            getFilteredValues();
-            realEstateViewModel.getRealEstateList(queryFilter).observe(this, this::setRealEstates);
-        } else {
-            realEstateViewModel.getRealEstateList(null).observe(this, realEstates -> {
-                setRealEstates(realEstates);
-            });
-        }
+    private void getRealEstates() {
+
+        realEstateViewModel.getRealEstateList(this).observe(this, realEstateList -> {
+                setFilterBottomSheet(realEstateList);
+                setRealEstates(realEstateList);
+        });
+    }
+
+    private void getFilteredRealEstates(QueryFilter queryFilter) {
+        realEstateViewModel.getFilteredRealEstateList(queryFilter).observe(this, this::setRealEstates);
     }
 
     public void setRealEstates(List<RealEstate> realEstatesList) {
-        initFragment();
-
-        if (isMapsFragmentVisible) setFragment(mapsFragment);
-        else setFragment(listFragment);
         mapsFragment.setRealEstates(realEstatesList);
         listFragment.setRealEstateList(realEstatesList);
+        if (mapsFragment.isVisible()) setFragment(mapsFragment);
+        else setFragment(listFragment);
 
         if (Utils.selectedRealEstate != null){
              for (RealEstate realEstate : realEstatesList){
@@ -148,10 +148,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                  }
              }
         }
-    }
-
-    private void getRealEstatesForFilters() {
-        realEstateViewModel.getRealEstateList(null).observe(this, this::setFilterBottomSheet);
     }
 
     private void setFilterBottomSheet(List<RealEstate> realEstatesList) {
@@ -182,17 +178,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             Chip chip = (Chip) bottomSheetChipGroup.getChildAt(i);
             chip.setChecked(false);
         }
-
-        getRealEstatesForLists();
-        setFilterButton(realEstatesList);
     }
 
-    private void setFilterButton(List<RealEstate> realEstatesList){
+    private void setFilterButton(){
         filterButton.setOnClickListener(v -> {
-            if (!realEstatesList.isEmpty()) {
-                isFilter = true;
-                getRealEstatesForLists();
-            }
+            getFilteredValues();
+            getFilteredRealEstates(queryFilter);
         });
     }
 
@@ -239,33 +230,41 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         topChipGroup.addView(clearChip);
 
         clearChip.setOnClickListener(v -> {
+            getRealEstates();
             topChipGroup.removeAllViews();
-            isFilter = false;
-            getRealEstatesForLists();
-            getRealEstatesForFilters();
         });
 
         if (minPriceFilter != queryFilter.getMinPrice()) {
             if (Utils.isConvertedInEuro) {
                 topChipGroup.addView(FiltersUtils.chipGenerator(getString(R.string.euro_price,
-                        NumberFormat.getNumberInstance(Locale.FRANCE).format(queryFilter.getMinPrice())), true,  this));
+                        NumberFormat.getNumberInstance(Locale.FRANCE).format(queryFilter.getMinPrice())),
+                        true,
+                        this));
             } else
                 topChipGroup.addView(FiltersUtils.chipGenerator(getString(R.string.dollar_price,
-                        NumberFormat.getNumberInstance(Locale.FRANCE).format(queryFilter.getMinPrice())), true,  this));
+                        NumberFormat.getNumberInstance(Locale.FRANCE).format(queryFilter.getMinPrice())),
+                        true,
+                        this));
         }
 
         if (maxPriceFilter != queryFilter.getMaxPrice()) {
             if (Utils.isConvertedInEuro) {
                 topChipGroup.addView(FiltersUtils.chipGenerator(getString(R.string.euro_price,
-                        NumberFormat.getNumberInstance(Locale.FRANCE).format(queryFilter.getMaxPrice())), false,  this));
+                        NumberFormat.getNumberInstance(Locale.FRANCE).format(queryFilter.getMaxPrice())),
+                        false,
+                        this));
             } else
                 topChipGroup.addView(FiltersUtils.chipGenerator(getString(R.string.dollar_price,
-                        NumberFormat.getNumberInstance(Locale.FRANCE).format(queryFilter.getMaxPrice())), false,  this));
+                        NumberFormat.getNumberInstance(Locale.FRANCE).format(queryFilter.getMaxPrice())),
+                        false,
+                        this));
         }
 
         if (minSurfaceFilter != queryFilter.getMinSurface())
-            topChipGroup.addView(FiltersUtils.chipGenerator(
-                    getString(R.string.surface, String.valueOf((int) queryFilter.getMinSurface())), true, this));
+            topChipGroup.addView(FiltersUtils.chipGenerator(getString(R.string.surface,
+                    String.valueOf((int) queryFilter.getMinSurface())),
+                    true,
+                    this));
 
         if (maxSurfaceFilter != queryFilter.getMaxSurface())
             topChipGroup.addView(FiltersUtils.chipGenerator(
@@ -351,10 +350,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private void convert(){
         Utils.isConvertedInEuro = !Utils.isConvertedInEuro;
-        isFilter = false;
         topChipGroup.removeAllViews();
-        getRealEstatesForFilters();
-        getRealEstatesForLists();
+        getRealEstates();
     }
 
     private void logout() {
@@ -372,12 +369,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 case R.id.list:
                     searchButton.setVisibility(View.VISIBLE);
                     setFragment(listFragment);
-                    isMapsFragmentVisible = false;
                     break;
                 case R.id.map:
                     searchButton.setVisibility(View.VISIBLE);
                     setFragment(mapsFragment);
-                    isMapsFragmentVisible = true;
                     break;
             }
             return true;
@@ -396,7 +391,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     public void launchDetailFragment(RealEstate realEstate) {
-
         detailFragment = DetailFragment.newInstance(realEstate.getId());
 
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
@@ -404,7 +398,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             fragmentTransaction.replace(R.id.fragment_container2, detailFragment).commit();
         } else {
             fragmentTransaction.replace(R.id.fragment_container, detailFragment).commit();
-
             topAppBar.setVisibility(View.GONE);
             backButton.setVisibility(View.VISIBLE);
             bottomNavigationView.setVisibility(View.GONE);
@@ -417,7 +410,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
             Utils.selectedRealEstate = null;
 
-            if (isMapsFragmentVisible) setFragment(mapsFragment);
+            if (mapsFragment.isVisible()) setFragment(mapsFragment);
             else setFragment(listFragment);
 
             topAppBar.setVisibility(View.VISIBLE);
@@ -426,5 +419,4 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             topChipGroup.setVisibility(View.VISIBLE);
         });
     }
-
 }

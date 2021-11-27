@@ -22,8 +22,7 @@ public class RealEstate {
     String id;
     String type, descriptions;
     String mainPhoto;
-    int dollarPrice;
-    int euroPrice;
+    int dollarPrice, euroPrice;
     boolean isSold;
     double surface;
     List<RoomsPhotos> roomsPhotosList;
@@ -31,7 +30,7 @@ public class RealEstate {
     List<String> pointsOfInterest;
     String street, city, postalCode, country;
     double latitude, longitude;
-    String recordDate, saleDate, lastEditDate;
+    String recordDate, saleDate;
     String estateAgent;
 
     public RealEstate(String id,
@@ -55,7 +54,6 @@ public class RealEstate {
                       double longitude,
                       String recordDate,
                       String saleDate,
-                      String lastEditDate,
                       String estateAgent) {
         this.id = id;
         this.type = type;
@@ -78,7 +76,6 @@ public class RealEstate {
         this.longitude = longitude;
         this.recordDate = recordDate;
         this.saleDate = saleDate;
-        this.lastEditDate = lastEditDate;
         this.estateAgent = estateAgent;
     }
 
@@ -250,14 +247,6 @@ public class RealEstate {
         this.saleDate = saleDate;
     }
 
-    public String getLastEditDate() {
-        return lastEditDate;
-    }
-
-    public void setLastEditDate(String lastEditDate) {
-        this.lastEditDate = lastEditDate;
-    }
-
     public String getEstateAgent() {
         return estateAgent;
     }
@@ -279,7 +268,7 @@ public class RealEstate {
         List<String> pointsOfInterest;
         String street, city, postalCode, country;
         double latitude, longitude;
-        String recordDate, saleDate, lastEditDate;
+        String recordDate, saleDate;
         String estateAgent;
 
         public Builder(String id) {
@@ -386,11 +375,6 @@ public class RealEstate {
             return this;
         }
 
-        public Builder lastEditDate(String lastEditDate) {
-            this.lastEditDate = lastEditDate;
-            return this;
-        }
-
         public Builder estateAgent(String estateAgent) {
             this.estateAgent = estateAgent;
             return this;
@@ -419,9 +403,7 @@ public class RealEstate {
             realEstate.longitude = this.longitude;
             realEstate.recordDate = this.recordDate;
             realEstate.saleDate = this.saleDate;
-            realEstate.lastEditDate = this.lastEditDate;
             realEstate.estateAgent = this.estateAgent;
-
             return realEstate;
         }
     }
@@ -495,7 +477,6 @@ public class RealEstate {
         if (value.containsKey("longitude")) realEstate.setLongitude(value.getAsDouble("longitude"));
         if (value.containsKey("recordDate")) realEstate.setRecordDate(value.getAsString("recordDate"));
         if (value.containsKey("saleDate")) realEstate.setSaleDate(value.getAsString("saleDate"));
-        if (value.containsKey("lastEditDate")) realEstate.setLastEditDate(value.getAsString("lastEditDate"));
         if (value.containsKey("estateAgent")) realEstate.setEstateAgent(value.getAsString("estateAgent"));
         return  realEstate;
     }

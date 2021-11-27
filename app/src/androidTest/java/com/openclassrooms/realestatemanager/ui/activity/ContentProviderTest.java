@@ -12,6 +12,8 @@ import android.net.Uri;
 
 import androidx.room.Room;
 import androidx.test.InstrumentationRegistry;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.internal.runner.junit4.AndroidJUnit4ClassRunner;
 import androidx.test.runner.AndroidJUnit4;
 
 import com.openclassrooms.realestatemanager.ContentProvider;
@@ -22,7 +24,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-@RunWith(AndroidJUnit4.class)
+@RunWith(AndroidJUnit4ClassRunner.class)
 public class ContentProviderTest {
 
     private ContentResolver contentResolver;
@@ -31,9 +33,9 @@ public class ContentProviderTest {
 
     @Before
     public void setUp() {
-        Room.inMemoryDatabaseBuilder(InstrumentationRegistry.getContext(),
-                RealEstateManagerDataBase.class).allowMainThreadQueries().build();
-        contentResolver = InstrumentationRegistry.getContext().getContentResolver();
+        Room.inMemoryDatabaseBuilder(ApplicationProvider.getApplicationContext(), RealEstateManagerDataBase.class)
+                .allowMainThreadQueries().build();
+        contentResolver = ApplicationProvider.getApplicationContext().getContentResolver();
     }
 
     @Test

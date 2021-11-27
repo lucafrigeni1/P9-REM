@@ -1,5 +1,6 @@
 package com.openclassrooms.realestatemanager.repository;
 
+import android.content.Context;
 import android.net.Uri;
 
 import androidx.lifecycle.LiveData;
@@ -21,8 +22,12 @@ public class RealEstateViewModel extends ViewModel {
         this.executor = executor;
     }
 
-    public LiveData<List<RealEstate>> getRealEstateList(QueryFilter queryFilter) {
-        return realEstateDataRepository.getRealEstateList(queryFilter, executor);
+    public LiveData<List<RealEstate>> getRealEstateList(Context context) {
+        return realEstateDataRepository.getRealEstateList(executor, context);
+    }
+
+    public LiveData<List<RealEstate>> getFilteredRealEstateList(QueryFilter queryFilter) {
+        return realEstateDataRepository.getFilteredRealEstateList(queryFilter, executor);
     }
 
     public LiveData<RealEstate> getRealEstate(String id) {
@@ -31,10 +36,6 @@ public class RealEstateViewModel extends ViewModel {
 
     public void createRealEstate(RealEstate realEstate) {
         executor.execute(() -> realEstateDataRepository.createRealEstate(realEstate));
-    }
-
-    public void synchroniseWithFirebase(List<RealEstate> realEstateList) {
-        executor.execute(() -> realEstateDataRepository.synchroniseWithFirebase(realEstateList, executor));
     }
 
     public LiveData<String> uploadImageInStorage(Uri uri) {

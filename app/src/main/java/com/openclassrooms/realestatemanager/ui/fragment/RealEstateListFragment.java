@@ -1,7 +1,9 @@
 package com.openclassrooms.realestatemanager.ui.fragment;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,13 +19,13 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.openclassrooms.realestatemanager.R;
-import com.openclassrooms.realestatemanager.utils.Utils;
 import com.openclassrooms.realestatemanager.di.Injections;
 import com.openclassrooms.realestatemanager.di.ViewModelFactory;
 import com.openclassrooms.realestatemanager.models.RealEstate;
 import com.openclassrooms.realestatemanager.repository.RealEstateViewModel;
 import com.openclassrooms.realestatemanager.ui.activity.CreateActivity;
 import com.openclassrooms.realestatemanager.ui.activity.MainActivity;
+import com.openclassrooms.realestatemanager.utils.Utils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,6 +38,7 @@ public class RealEstateListFragment extends Fragment {
     RealEstateViewModel viewModel;
     FloatingActionButton addButton;
     List<RealEstate> realEstates = new ArrayList<>();
+    RealEstateAdapter realEstateAdapter;
 
     @Nullable
     @Override
@@ -52,7 +55,7 @@ public class RealEstateListFragment extends Fragment {
         setAddButton();
     }
 
-    private void findViewById(View view){
+    private void findViewById(View view) {
         emptyList = view.findViewById(R.id.empty_drawable);
         recyclerView = view.findViewById(R.id.real_estate_list);
         addButton = view.findViewById(R.id.add_button);
@@ -65,22 +68,28 @@ public class RealEstateListFragment extends Fragment {
 
     public void setRealEstateList(List<RealEstate> realEstateList) {
         realEstates = realEstateList;
+        if (realEstateAdapter != null){
+            realEstateAdapter.notifyDataSetChanged();
+        }
     }
 
-    public void setRecyclerView(){
-        RealEstateAdapter adapter = new RealEstateAdapter(realEstates, ((MainActivity) Objects.requireNonNull(this.getActivity()))::launchDetailFragment);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this.getContext(), LinearLayoutManager.VERTICAL, false));
-        recyclerView.setAdapter(adapter);
+    public void setRecyclerView() {
+        realEstateAdapter = new RealEstateAdapter(realEstates,
+                ((MainActivity) Objects.requireNonNull(this.getActivity()))::launchDetailFragment);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this.getContext(),
+                LinearLayoutManager.VERTICAL, false));
+        recyclerView.setAdapter(realEstateAdapter);
 
         if (!realEstates.isEmpty()) emptyList.setVisibility(View.GONE);
     }
 
     private void setAddButton() {
         addButton.setOnClickListener(v -> {
-            if (Utils.isInternetAvailable(Objects.requireNonNull(this.getContext()))) {
+            if (Utils.isNetworkAvailable(Objects.requireNonNull(this.getContext()))) {
                 Intent intent = new Intent(this.getContext(), CreateActivity.class);
                 startActivity(intent);
-            } else Toast.makeText(this.getContext(), R.string.error_no_internet, Toast.LENGTH_LONG).show();
+            } else
+                Toast.makeText(this.getContext(), R.string.error_no_internet, Toast.LENGTH_LONG).show();
         });
     }
 }

@@ -157,6 +157,7 @@ public class DetailFragment extends Fragment implements OnMapReadyCallback {
             country.setText(realEstate.getCountry());
             latLng = new LatLng(realEstate.getLatitude(), realEstate.getLongitude());
 
+            chipGroup.removeAllViews();
             for (String poi : realEstate.getPointsOfInterest()) {
                 Chip chip = new Chip(Objects.requireNonNull(this.getContext()));
                 chip.setText(poi);
@@ -175,7 +176,7 @@ public class DetailFragment extends Fragment implements OnMapReadyCallback {
 
     private void setEditButton(RealEstate realEstate) {
         editButton.setOnClickListener(v -> {
-            if (Utils.isInternetAvailable(Objects.requireNonNull(this.getContext()))) {
+            if (Utils.isNetworkAvailable(Objects.requireNonNull(this.getContext()))) {
                 Intent intent = new Intent(v.getContext(), CreateActivity.class);
                 intent.putExtra(CreateActivity.EXTRA_REAL_ESTATE, realEstate.getId());
                 v.getContext().startActivity(intent);
