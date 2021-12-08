@@ -9,6 +9,8 @@ import androidx.room.PrimaryKey;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.lang.reflect.Type;
 import java.util.Collections;
 import java.util.Comparator;
@@ -33,7 +35,7 @@ public class RealEstate {
     String recordDate, saleDate;
     String estateAgent;
 
-    public RealEstate(String id,
+    public RealEstate(@NotNull String id,
                       String type,
                       String descriptions,
                       String mainPhoto,
@@ -79,11 +81,12 @@ public class RealEstate {
         this.estateAgent = estateAgent;
     }
 
+    @NotNull
     public String getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(@NotNull String id) {
         this.id = id;
     }
 
@@ -408,8 +411,7 @@ public class RealEstate {
         }
     }
 
-    public RealEstate() {
-    }
+    public RealEstate() {}
 
     public static class PriceComparator implements Comparator<RealEstate> {
         @Override

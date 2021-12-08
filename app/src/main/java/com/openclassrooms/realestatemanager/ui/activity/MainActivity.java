@@ -3,7 +3,6 @@ package com.openclassrooms.realestatemanager.ui.activity;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AutoCompleteTextView;
@@ -49,7 +48,9 @@ import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
-    RealEstateViewModel realEstateViewModel;
+    RealEstateViewModel viewModel;
+
+    View nothingSelected;
 
     MaterialToolbar topAppBar;
     DrawerLayout drawerLayout;
@@ -60,12 +61,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     MapsFragment mapsFragment;
     DetailFragment detailFragment;
 
-
     TextView headerName, headerMail;
 
     ImageButton searchButton, backButton;
     NestedScrollView bottomSheet;
-    BottomSheetBehavior bottomSheetBehavior;
+    BottomSheetBehavior<View> bottomSheetBehavior;
     RangeSlider priceSlider, surfaceSlider, roomsSlider, bathroomsSlider, bedroomsSlider;
     AutoCompleteTextView typeFilter;
     TextView cityFilter;
@@ -83,6 +83,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         findViewById();
+        if (findViewById(R.id.fragment_container2) != null) Utils.isTablet = true;
         Utils.isConvertedInEuro = false;
         setBottomNavigation();
         setTopNavigation();
@@ -90,10 +91,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         initFragment();
         getRealEstates();
         setFilterButton();
-        closeDetailFragment();
+        setDetailFragmentBackButton();
+        viewModel.refresh();
     }
 
     private void findViewById() {
+        nothingSelected = findViewById(R.id.nothing_selected);
         topAppBar = findViewById(R.id.top_app_bar);
         drawerLayout = findViewById(R.id.drawer_layout);
         navigationView = findViewById(R.id.navigation_view);
@@ -120,34 +123,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private void setViewModel() {
         ViewModelFactory viewModelFactory = Injections.provideViewModelFactory(this);
-        this.realEstateViewModel = new ViewModelProvider(this, viewModelFactory).get(RealEstateViewModel.class);
+        this.viewModel = new ViewModelProvider(this, viewModelFactory).get(RealEstateViewModel.class);
     }
 
     private void getRealEstates() {
-
-        realEstateViewModel.getRealEstateList(this).observe(this, realEstateList -> {
-                setFilterBottomSheet(realEstateList);
-                setRealEstates(realEstateList);
-        });
-    }
-
-    private void getFilteredRealEstates(QueryFilter queryFilter) {
-        realEstateViewModel.getFilteredRealEstateList(queryFilter).observe(this, this::setRealEstates);
-    }
-
-    public void setRealEstates(List<RealEstate> realEstatesList) {
-        mapsFragment.setRealEstates(realEstatesList);
-        listFragment.setRealEstateList(realEstatesList);
-        if (mapsFragment.isVisible()) setFragment(mapsFragment);
-        else setFragment(listFragment);
-
-        if (Utils.selectedRealEstate != null){
-             for (RealEstate realEstate : realEstatesList){
-                 if (realEstate.getId().equals(Utils.selectedRealEstate)){
-                     launchDetailFragment(realEstate);
-                 }
-             }
-        }
+        viewModel.getRealEstateList().observe(this, this::setFilterBottomSheet);
     }
 
     private void setFilterBottomSheet(List<RealEstate> realEstatesList) {
@@ -170,7 +150,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             FiltersUtils.setSlider(bedroomsSlider, minBedRoomsFilter, maxBedRoomsFilter, true, false);
         }
 
-        FiltersUtils.setTypeFilter(typeFilter, this);
+        FiltersUtils.setTypeFilter(typeFilter);
         cityFilter.getEditableText().clear();
         soldFilter.setChecked(false);
 
@@ -183,7 +163,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private void setFilterButton(){
         filterButton.setOnClickListener(v -> {
             getFilteredValues();
-            getFilteredRealEstates(queryFilter);
+            setQueryFilter(queryFilter);
+            if (Utils.isTablet){
+                Utils.selectedRealEstate = null;
+                findViewById(R.id.fragment_container2).setVisibility(View.GONE);
+                nothingSelected.setVisibility(View.VISIBLE);
+            }
         });
     }
 
@@ -218,6 +203,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         bottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
     }
 
+    private void setQueryFilter(QueryFilter queryFilter) {
+        viewModel.setQueryFilter(queryFilter);
+    }
+
     @SuppressLint("StringFormatMatches")
     private void setChipGroup(List<String> pointsOfInterestList) {
         topChipGroup.removeAllViews();
@@ -230,7 +219,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         topChipGroup.addView(clearChip);
 
         clearChip.setOnClickListener(v -> {
-            getRealEstates();
+            viewModel.refresh();
             topChipGroup.removeAllViews();
         });
 
@@ -338,28 +327,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         int id = item.getItemId();
         switch (id) {
             case R.id.convert:
-                convert();
+                Utils.isConvertedInEuro = !Utils.isConvertedInEuro;
+                topChipGroup.removeAllViews();
+                viewModel.refresh();
                 break;
             case R.id.logout:
-                logout();
+                AuthUI.getInstance().signOut(this).addOnSuccessListener(this, aVoid -> {
+                    finish();
+                    Intent intent = new Intent(this, AuthenticationActivity.class);
+                    startActivity(intent);
+                });
                 break;
         }
         this.drawerLayout.closeDrawer(GravityCompat.START);
         return true;
-    }
-
-    private void convert(){
-        Utils.isConvertedInEuro = !Utils.isConvertedInEuro;
-        topChipGroup.removeAllViews();
-        getRealEstates();
-    }
-
-    private void logout() {
-        AuthUI.getInstance().signOut(this).addOnSuccessListener(this, aVoid -> {
-            finish();
-            Intent intent = new Intent(this, AuthenticationActivity.class);
-            startActivity(intent);
-        });
     }
 
     @SuppressLint("NonConstantResourceId")
@@ -367,10 +348,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         bottomNavigationView.setOnItemSelectedListener(item -> {
             switch (item.getItemId()) {
                 case R.id.list:
+                    Utils.wasMapsFragmentShown = false;
                     searchButton.setVisibility(View.VISIBLE);
                     setFragment(listFragment);
                     break;
                 case R.id.map:
+                    Utils.wasMapsFragmentShown = true;
                     searchButton.setVisibility(View.VISIBLE);
                     setFragment(mapsFragment);
                     break;
@@ -383,6 +366,22 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         listFragment = new RealEstateListFragment();
         mapsFragment = new MapsFragment();
         detailFragment = new DetailFragment();
+
+
+        //
+        if (Utils.selectedRealEstate != null) {
+            if (Utils.isTablet){
+                if (Utils.wasMapsFragmentShown) {
+                    setFragment(mapsFragment);
+                    bottomNavigationView.setSelectedItemId(R.id.map);
+                } else setFragment(listFragment);
+            }
+
+            viewModel.getRealEstate(Utils.selectedRealEstate).observe(this, this::launchDetailFragment);
+        } else if (Utils.wasMapsFragmentShown){
+            setFragment(mapsFragment);
+            bottomNavigationView.setSelectedItemId(R.id.map);
+        } else setFragment(listFragment);
     }
 
     public void setFragment(Fragment fragment) {
@@ -395,6 +394,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
         if (findViewById(R.id.fragment_container2) != null) {
+            findViewById(R.id.fragment_container2).setVisibility(View.VISIBLE);
+            nothingSelected.setVisibility(View.GONE);
             fragmentTransaction.replace(R.id.fragment_container2, detailFragment).commit();
         } else {
             fragmentTransaction.replace(R.id.fragment_container, detailFragment).commit();
@@ -405,18 +406,36 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
+    private void setDetailFragmentBackButton(){
+        backButton.setOnClickListener(v -> closeDetailFragment());
+    }
+
     private void closeDetailFragment() {
-        backButton.setOnClickListener(v -> {
+        Utils.selectedRealEstate = null;
 
-            Utils.selectedRealEstate = null;
+        if (Utils.wasMapsFragmentShown){
+            setFragment(mapsFragment);
+            bottomNavigationView.setSelectedItemId(R.id.map);
+        } else setFragment(listFragment);
 
-            if (mapsFragment.isVisible()) setFragment(mapsFragment);
-            else setFragment(listFragment);
+        topAppBar.setVisibility(View.VISIBLE);
+        backButton.setVisibility(View.GONE);
+        bottomNavigationView.setVisibility(View.VISIBLE);
+        topChipGroup.setVisibility(View.VISIBLE);
+    }
 
-            topAppBar.setVisibility(View.VISIBLE);
-            backButton.setVisibility(View.GONE);
-            bottomNavigationView.setVisibility(View.VISIBLE);
-            topChipGroup.setVisibility(View.VISIBLE);
-        });
+    @Override
+    public void onBackPressed() {
+        if (bottomSheetBehavior.getState() == BottomSheetBehavior.STATE_EXPANDED){
+            bottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
+        } else if (this.drawerLayout.isDrawerOpen(GravityCompat.START)){
+            this.drawerLayout.closeDrawer(GravityCompat.START);
+        } else if (detailFragment.isVisible() && !Utils.isTablet){
+            closeDetailFragment();
+        } else if (mapsFragment.isVisible()){
+            setFragment(listFragment);
+            bottomNavigationView.setSelectedItemId(R.id.list);
+        } else
+            super.onBackPressed();
     }
 }

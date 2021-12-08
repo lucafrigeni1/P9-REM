@@ -12,10 +12,12 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -25,7 +27,6 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.progressindicator.CircularProgressIndicator;
 import com.openclassrooms.realestatemanager.R;
 import com.openclassrooms.realestatemanager.utils.Utils;
 import com.openclassrooms.realestatemanager.di.Injections;
@@ -56,13 +57,11 @@ public class DetailFragment extends Fragment implements OnMapReadyCallback {
     RoomsPhotosAdapter roomsPhotosAdapter;
 
     FloatingActionButton editButton;
+    ImageView mainPhoto;
     ImageView sold;
     TextView type, price, dates, description, roomsAndSurface, bathroomsNumber,
             bedroomsNumber, street, city, country;
     ChipGroup chipGroup;
-    ConstraintLayout nothingSelected, progressIndicatorLayout;
-
-    CircularProgressIndicator progressIndicator;
 
     LatLng latLng;
     private GoogleMap map;
@@ -79,7 +78,7 @@ public class DetailFragment extends Fragment implements OnMapReadyCallback {
         super.onViewCreated(view, savedInstanceState);
         findViewById(view);
         setViewModel();
-        getRealEstate();
+
     }
 
     private void findViewById(View view) {
@@ -87,8 +86,7 @@ public class DetailFragment extends Fragment implements OnMapReadyCallback {
                 getChildFragmentManager().findFragmentById(R.id.lite_map);
         Objects.requireNonNull(mapFragment).getMapAsync(this);
 
-        progressIndicatorLayout = view.findViewById(R.id.progress_bar_layout);
-        progressIndicator = view.findViewById(R.id.progress_bar);
+        mainPhoto = view.findViewById(R.id.main_picture);
         type = view.findViewById(R.id.type);
         price = view.findViewById(R.id.price);
         dates = view.findViewById(R.id.dates);
@@ -103,7 +101,6 @@ public class DetailFragment extends Fragment implements OnMapReadyCallback {
         street = view.findViewById(R.id.street);
         city = view.findViewById(R.id.city);
         country = view.findViewById(R.id.country);
-        nothingSelected = view.findViewById(R.id.nothing_selected);
     }
 
     private void setViewModel() {
@@ -121,12 +118,15 @@ public class DetailFragment extends Fragment implements OnMapReadyCallback {
         map = googleMap;
         map.getUiSettings().setMapToolbarEnabled(false);
         map.getUiSettings().setMyLocationButtonEnabled(false);
+
+        getRealEstate();
     }
 
     private void setView(RealEstate realEstate) {
-        progressIndicatorLayout.setVisibility(View.GONE);
-
         if (realEstate != null) {
+
+            Glide.with(mainPhoto).load(Utils.setPhotoUrl(realEstate.getMainPhoto())).centerCrop().into(mainPhoto);
+
             type.setText(realEstate.getType());
 
             if (Utils.isConvertedInEuro){
@@ -165,18 +165,19 @@ public class DetailFragment extends Fragment implements OnMapReadyCallback {
                 chip.setTextColor(getResources().getColor(R.color.colorPrimary800));
                 chipGroup.addView(chip);
             }
-            setEditButton(realEstate);
-        } else nothingSelected.setVisibility(View.VISIBLE);
 
-        if (latLng != null) {
-            map.addMarker(new MarkerOptions().position(latLng));
-            map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, DEFAULT_ZOOM));
+            if (latLng != null) {
+                map.addMarker(new MarkerOptions().position(latLng));
+                map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, DEFAULT_ZOOM));
+            }
+
+            setEditButton(realEstate);
         }
     }
 
     private void setEditButton(RealEstate realEstate) {
         editButton.setOnClickListener(v -> {
-            if (Utils.isNetworkAvailable(Objects.requireNonNull(this.getContext()))) {
+            if (Utils.isNetworkAvailable()) {
                 Intent intent = new Intent(v.getContext(), CreateActivity.class);
                 intent.putExtra(CreateActivity.EXTRA_REAL_ESTATE, realEstate.getId());
                 v.getContext().startActivity(intent);

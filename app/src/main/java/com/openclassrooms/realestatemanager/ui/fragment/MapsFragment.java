@@ -44,8 +44,7 @@ import java.util.Objects;
 
 public class MapsFragment extends Fragment implements OnMapReadyCallback {
 
-    RealEstateViewModel realEstateViewModel;
-    List<RealEstate> realEstates = new ArrayList<>();
+    RealEstateViewModel viewModel;
 
     private GoogleMap map;
     FusedLocationProviderClient fusedLocationProviderClient;
@@ -71,11 +70,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
 
     private void setViewModel() {
         ViewModelFactory viewModelFactory = Injections.provideViewModelFactory(this.getContext());
-        this.realEstateViewModel = new ViewModelProvider(this, viewModelFactory).get(RealEstateViewModel.class);
-    }
-
-    public void setRealEstates(List<RealEstate> realEstateList) {
-        realEstates = realEstateList;
+        this.viewModel = new ViewModelProvider(this.requireActivity(), viewModelFactory).get(RealEstateViewModel.class);
     }
 
     private void setFloatingActionButton() {
@@ -106,7 +101,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
     private void getDeviceLocation() {
         getLocationPermission();
         try {
-            if (Utils.isNetworkAvailable(Objects.requireNonNull(this.getContext()))) {
+            if (Utils.isNetworkAvailable()) {
                 if (locationPermissionGranted) {
                     map.setMyLocationEnabled(true);
                     Task<Location> locationResult = fusedLocationProviderClient.getLastLocation();
@@ -116,7 +111,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
                             if (location != null) {
                                 latLng = new LatLng(location.getLatitude(), location.getLongitude());
                                 map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, DEFAULT_ZOOM));
-                                setMarkers();
+                                viewModel.getRealEstateList().observe(getViewLifecycleOwner(), this::setMarkers);
                             } else
                                 Toast.makeText(this.getContext(), getString(R.string.error_location), Toast.LENGTH_SHORT).show();
                         }
@@ -141,7 +136,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         }
     }
 
-    public void setMarkers() {
+    public void setMarkers(List<RealEstate> realEstates) {
         map.clear();
 
         if (getContext() != null) {
@@ -149,9 +144,9 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
                 for (RealEstate realEstate : realEstates) {
                     Bitmap bm;
                     if (realEstate.isSold()) {
-                        bm = Utils.getBitmapFromVectorDrawable(getContext(), R.drawable.ic_baseline_place_orange_24);
+                        bm = Utils.getBitmapFromVectorDrawable(R.drawable.ic_baseline_place_orange_24);
                     } else {
-                        bm = Utils.getBitmapFromVectorDrawable(getContext(), R.drawable.ic_baseline_place_green_24);
+                        bm = Utils.getBitmapFromVectorDrawable(R.drawable.ic_baseline_place_green_24);
                     }
 
                     LatLng latLng = new LatLng(realEstate.getLatitude(), realEstate.getLongitude());
@@ -168,6 +163,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         map.setOnInfoWindowClickListener(marker -> {
             for (RealEstate realEstate : realEstates) {
                 if (realEstate.getStreet().equals(marker.getTitle())) {
+                    Utils.selectedRealEstate = realEstate.getId();
                     ((MainActivity) Objects.requireNonNull(this.getActivity())).launchDetailFragment(realEstate);
                 }
             }

@@ -19,6 +19,7 @@ import androidx.core.graphics.drawable.DrawableCompat;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.openclassrooms.realestatemanager.App;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -31,10 +32,10 @@ import java.util.Objects;
 
 public class Utils {
 
+    public static boolean isTablet;
     public static LatLng latLng;
-
     public static boolean isConvertedInEuro;
-
+    public static boolean wasMapsFragmentShown;
     public static String selectedRealEstate;
 
     public static FirebaseUser getFirebaseUser() {
@@ -55,16 +56,17 @@ public class Utils {
         return dateFormat.format(new Date());
     }
 
-    public static Boolean isNetworkAvailable(Context context) {
-        ConnectivityManager connectivityManager =
-                (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+    public static Boolean isNetworkAvailable() {
+        ConnectivityManager connectivityManager = (ConnectivityManager)
+                App.getInstance().getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
         return networkInfo != null && networkInfo.isConnectedOrConnecting();
     }
 
-    public static Address geolocate(Context context, String locationName) {
+    public static Address geolocate(String locationName) {
         Address address = null;
-        Geocoder geocoder = new Geocoder(context, Locale.getDefault());
+        Geocoder geocoder =
+                new Geocoder(App.getInstance().getApplicationContext(), Locale.getDefault());
         try {
             List<Address> addressList =
                     geocoder.getFromLocationName(locationName, 1);
@@ -77,19 +79,21 @@ public class Utils {
         return address;
     }
 
-    public static Uri convertBitmapToUri(Bitmap bitmap, Context context) {
+    public static Uri convertBitmapToUri(Bitmap bitmap) {
         Uri uri;
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
-        String path = MediaStore.Images.Media.insertImage(context.getContentResolver(),
+        String path = MediaStore.Images.Media.insertImage(
+                App.getInstance().getApplicationContext().getContentResolver(),
                 bitmap, "Title", null);
         uri = Uri.parse(path);
         return uri;
     }
 
     @SuppressLint("ObsoleteSdkInt")
-    public static Bitmap getBitmapFromVectorDrawable(Context context, int drawableId) {
-        Drawable drawable = ContextCompat.getDrawable(context, drawableId);
+    public static Bitmap getBitmapFromVectorDrawable(int drawableId) {
+        Drawable drawable =
+                ContextCompat.getDrawable(App.getInstance().getApplicationContext(), drawableId);
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
             drawable = (DrawableCompat.wrap(Objects.requireNonNull(drawable))).mutate();
         }

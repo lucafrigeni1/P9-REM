@@ -32,13 +32,13 @@
         android:tint="@color/colorPrimary900"
         android:background="@color/fui_transparent"/>
 
-
     <HorizontalScrollView
         android:id="@+id/scrollView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_constraintTop_toBottomOf="@+id/top_app_bar"
         android:background="@color/colorPrimary100"
+        android:paddingHorizontal="5dp"
         android:scrollbars="none">
 
     <com.google.android.material.chip.ChipGroup
@@ -87,6 +87,7 @@
         app:menu="@menu/navigation_drawer"
         app:itemTextColor="@color/colorPrimary900"
         app:itemIconTint="@color/colorPrimary900"/>
-
 </androidx.drawerlayout.widget.DrawerLayout>
+
+
 

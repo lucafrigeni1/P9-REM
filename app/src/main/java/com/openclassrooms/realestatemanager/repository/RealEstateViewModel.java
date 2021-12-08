@@ -1,9 +1,10 @@
 package com.openclassrooms.realestatemanager.repository;
 
-import android.content.Context;
 import android.net.Uri;
 
 import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.Transformations;
 import androidx.lifecycle.ViewModel;
 
 import com.openclassrooms.realestatemanager.models.QueryFilter;
@@ -14,20 +15,34 @@ import java.util.concurrent.Executor;
 
 public class RealEstateViewModel extends ViewModel {
 
-    private final RealEstateDataRepository realEstateDataRepository;
-    private final Executor executor;
+    private RealEstateDataRepository realEstateDataRepository;
+    private Executor executor;
+
+    MutableLiveData<QueryFilter> queryFilterLiveData = new MutableLiveData<>();
+
+    LiveData<List<RealEstate>> realEstateListLiveData = Transformations.switchMap(queryFilterLiveData, queryFilter -> {
+        if (queryFilter == null){
+            return realEstateDataRepository.getRealEstateList(executor);
+        } else {
+            return realEstateDataRepository.getFilteredRealEstateList(queryFilter, executor);
+        }
+    });
 
     public RealEstateViewModel(RealEstateDataRepository realEstateDataRepository, Executor executor) {
         this.realEstateDataRepository = realEstateDataRepository;
         this.executor = executor;
     }
 
-    public LiveData<List<RealEstate>> getRealEstateList(Context context) {
-        return realEstateDataRepository.getRealEstateList(executor, context);
+    public LiveData<List<RealEstate>> getRealEstateList() {
+        return realEstateListLiveData;
     }
 
-    public LiveData<List<RealEstate>> getFilteredRealEstateList(QueryFilter queryFilter) {
-        return realEstateDataRepository.getFilteredRealEstateList(queryFilter, executor);
+    public void refresh(){
+        queryFilterLiveData.setValue(null);
+    }
+
+    public void setQueryFilter(QueryFilter queryFilter) {
+        this.queryFilterLiveData.setValue(queryFilter);
     }
 
     public LiveData<RealEstate> getRealEstate(String id) {

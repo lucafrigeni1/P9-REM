@@ -47,9 +47,12 @@
 
         <HorizontalScrollView
             android:id="@+id/scrollView"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             app:layout_constraintTop_toBottomOf="@+id/top_app_bar"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="@id/fragment_container"
+            android:paddingHorizontal="5dp"
             android:background="@color/colorPrimary100"
             android:scrollbars="none">
 
@@ -66,8 +69,7 @@
             android:layout_height="0dp"
             app:layout_constraintTop_toBottomOf="@+id/scrollView"
             app:layout_constraintBottom_toTopOf="@id/bot_navigation"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/fragment_container2"/>
+            app:layout_constraintStart_toStartOf="parent" />
 
         <FrameLayout
             android:id="@+id/fragment_container2"
@@ -76,7 +78,27 @@
             app:layout_constraintTop_toBottomOf="@+id/top_app_bar"
             app:layout_constraintBottom_toTopOf="@id/bot_navigation"
             app:layout_constraintStart_toEndOf="@id/fragment_container"
-            app:layout_constraintEnd_toEndOf="parent"/>
+            app:layout_constraintEnd_toEndOf="parent"
+            android:visibility="gone"/>
+
+        <FrameLayout
+            android:id="@+id/nothing_selected"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintTop_toBottomOf="@+id/top_app_bar"
+            app:layout_constraintBottom_toTopOf="@id/bot_navigation"
+            app:layout_constraintStart_toEndOf="@id/fragment_container"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:background="@color/colorPrimary500">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="@string/nothing_selected"
+                android:textSize="50dp"
+                android:textColor="@color/colorPrimary900"
+                android:gravity="center"/>
+        </FrameLayout>
 
         <com.google.android.material.bottomnavigation.BottomNavigationView
             android:id="@+id/bot_navigation"

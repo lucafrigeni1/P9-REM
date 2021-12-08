@@ -1,9 +1,7 @@
 package com.openclassrooms.realestatemanager.ui.fragment;
 
-import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,7 +25,7 @@ import com.openclassrooms.realestatemanager.ui.activity.CreateActivity;
 import com.openclassrooms.realestatemanager.ui.activity.MainActivity;
 import com.openclassrooms.realestatemanager.utils.Utils;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -37,7 +35,6 @@ public class RealEstateListFragment extends Fragment {
     RecyclerView recyclerView;
     RealEstateViewModel viewModel;
     FloatingActionButton addButton;
-    List<RealEstate> realEstates = new ArrayList<>();
     RealEstateAdapter realEstateAdapter;
 
     @Nullable
@@ -51,8 +48,8 @@ public class RealEstateListFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         findViewById(view);
         setViewModel();
-        setRecyclerView();
         setAddButton();
+        viewModel.getRealEstateList().observe(getViewLifecycleOwner(), this::setRealEstateList);
     }
 
     private void findViewById(View view) {
@@ -63,29 +60,25 @@ public class RealEstateListFragment extends Fragment {
 
     private void setViewModel() {
         ViewModelFactory viewModelFactory = Injections.provideViewModelFactory(this.getContext());
-        this.viewModel = new ViewModelProvider(this, viewModelFactory).get(RealEstateViewModel.class);
+        this.viewModel = new ViewModelProvider(this.requireActivity(), viewModelFactory).get(RealEstateViewModel.class);
     }
 
     public void setRealEstateList(List<RealEstate> realEstateList) {
-        realEstates = realEstateList;
-        if (realEstateAdapter != null){
-            realEstateAdapter.notifyDataSetChanged();
-        }
-    }
+        Collections.sort(realEstateList, (o1, o2) -> Boolean.compare(o1.isSold(), o2.isSold()));
 
-    public void setRecyclerView() {
-        realEstateAdapter = new RealEstateAdapter(realEstates,
+        realEstateAdapter = new RealEstateAdapter(realEstateList,
                 ((MainActivity) Objects.requireNonNull(this.getActivity()))::launchDetailFragment);
+
         recyclerView.setLayoutManager(new LinearLayoutManager(this.getContext(),
                 LinearLayoutManager.VERTICAL, false));
         recyclerView.setAdapter(realEstateAdapter);
 
-        if (!realEstates.isEmpty()) emptyList.setVisibility(View.GONE);
+        if (realEstateList.isEmpty()) emptyList.setVisibility(View.VISIBLE);
     }
 
     private void setAddButton() {
         addButton.setOnClickListener(v -> {
-            if (Utils.isNetworkAvailable(Objects.requireNonNull(this.getContext()))) {
+            if (Utils.isNetworkAvailable()) {
                 Intent intent = new Intent(this.getContext(), CreateActivity.class);
                 startActivity(intent);
             } else

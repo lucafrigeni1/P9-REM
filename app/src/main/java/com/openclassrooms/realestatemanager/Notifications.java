@@ -25,10 +25,10 @@ public class Notifications extends Worker {
         workerParameters = workerParams;
     }
 
-    public static void launchWorker(Context context, boolean isCreate) {
+    public static void launchWorker(Context context, boolean isAModification) {
         WorkRequest workRequest;
         Data.Builder data = new Data.Builder();
-        data.putBoolean("isCreate", isCreate);
+        data.putBoolean("isAModification", isAModification);
         workRequest = new OneTimeWorkRequest.Builder(Notifications.class).setInputData(data.build()).build();
         WorkManager.getInstance(context).enqueue(workRequest);
     }
@@ -36,16 +36,16 @@ public class Notifications extends Worker {
     @NonNull
     @Override
     public Result doWork() {
-        boolean isCreate = workerParameters.getInputData().getBoolean("isCreate", false);
-        setNotifications(this.getApplicationContext(), isCreate);
+        boolean isAModification = workerParameters.getInputData().getBoolean("isAModification", false);
+        setNotifications(this.getApplicationContext(), isAModification);
         return Result.success();
     }
 
-    public void setNotifications(Context context, boolean isCreate) {
+    public void setNotifications(Context context, boolean isAModification) {
         String channelId = "channel id";
 
         String text;
-        if (isCreate) text = context.getString(R.string.creation_notification);
+        if (!isAModification) text = context.getString(R.string.creation_notification);
         else text = context.getString(R.string.edit_notification);
 
         NotificationCompat.Builder notificationBuilder =

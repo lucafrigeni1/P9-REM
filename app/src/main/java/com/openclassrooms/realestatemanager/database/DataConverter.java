@@ -18,8 +18,7 @@ public class DataConverter {
         }
         Gson gson = new Gson();
         Type type = new TypeToken<List<RoomsPhotos>>() {}.getType();
-        String json = gson.toJson(roomsPhotosList, type);
-        return json;
+        return gson.toJson(roomsPhotosList, type);
     }
 
     @TypeConverter
@@ -29,8 +28,7 @@ public class DataConverter {
         }
         Gson gson = new Gson();
         Type type = new TypeToken<List<RoomsPhotos>>() {}.getType();
-        List<RoomsPhotos> roomsPhotosList = gson.fromJson(roomsPhotosString, type);
-        return roomsPhotosList;
+        return gson.fromJson(roomsPhotosString, type);
     }
 
     @TypeConverter
@@ -40,8 +38,7 @@ public class DataConverter {
         }
         Gson gson = new Gson();
         Type type = new TypeToken<List<String>>() {}.getType();
-        String json = gson.toJson(pointsOfInterestList, type);
-        return json;
+        return gson.toJson(pointsOfInterestList, type);
     }
 
     @TypeConverter
@@ -51,9 +48,6 @@ public class DataConverter {
         }
         Gson gson = new Gson();
         Type type = new TypeToken<List<String>>() {}.getType();
-        List<String> pointsOfInterestList = gson.fromJson(pointsOfInterestString, type);
-        return pointsOfInterestList;
+        return gson.fromJson(pointsOfInterestString, type);
     }
-
-
 }

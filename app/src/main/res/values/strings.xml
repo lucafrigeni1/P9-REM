@@ -49,6 +49,7 @@
     <string name="euro_price">%1$s €</string>
     <string name="dollar_price">%1$s $</string>
     <string name="location_text">LOCATION</string>
+    <string name="nothing_selected">NOTHING SELECTED</string>
 
     //FILTERS
     <string name="upper">> %1$s</string>

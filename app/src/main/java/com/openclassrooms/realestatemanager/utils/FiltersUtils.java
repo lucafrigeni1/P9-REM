@@ -7,6 +7,7 @@ import android.widget.AutoCompleteTextView;
 
 import com.google.android.material.chip.Chip;
 import com.google.android.material.slider.RangeSlider;
+import com.openclassrooms.realestatemanager.App;
 import com.openclassrooms.realestatemanager.R;
 import com.openclassrooms.realestatemanager.models.RealEstate;
 
@@ -76,10 +77,10 @@ public class FiltersUtils {
         }
     }
 
-    public static void setTypeFilter(AutoCompleteTextView typeFilter, Context context) {
+    public static void setTypeFilter(AutoCompleteTextView typeFilter) {
         typeFilter.getText().clear();
         String[] types = new String[]{"HOUSE", "FLAT", "STUDIO", "DUPLEX", "TRIPLEX"};
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(context, R.layout.dropdown_item, types);
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(App.getInstance().getApplicationContext(), R.layout.dropdown_item, types);
         typeFilter.setAdapter(adapter);
         typeFilter.setDropDownBackgroundResource(R.color.colorPrimary800);
     }

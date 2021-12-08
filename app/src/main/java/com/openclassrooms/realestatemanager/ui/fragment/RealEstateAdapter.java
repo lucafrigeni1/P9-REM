@@ -1,6 +1,5 @@
 package com.openclassrooms.realestatemanager.ui.fragment;
 
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,7 +23,7 @@ public class RealEstateAdapter extends RecyclerView.Adapter<RealEstateAdapter.Re
 
     private final OnItemClickListener listener;
     private final List<RealEstate> realEstateList;
-    private static int selectedPosition = -1;
+
 
     interface OnItemClickListener {
         void onItemClick(RealEstate realEstate);
@@ -44,13 +43,13 @@ public class RealEstateAdapter extends RecyclerView.Adapter<RealEstateAdapter.Re
 
     @Override
     public void onBindViewHolder(@NonNull RealEstateViewHolder holder, int position) {
-        Log.e( "onBindViewHolder: ", position + " ; " + selectedPosition);
-        if (selectedPosition == position) {
+        RealEstate realEstate = realEstateList.get(position);
+        if (realEstate.getId().equals(Utils.selectedRealEstate)) {
             holder.item.setBackgroundResource(R.color.colorPrimary700);
         } else {
             holder.item.setBackgroundResource(R.color.colorPrimary900);
         }
-        holder.bind(realEstateList.get(position), listener);
+        holder.bind(realEstate, listener);
     }
 
     @Override
@@ -91,10 +90,10 @@ public class RealEstateAdapter extends RecyclerView.Adapter<RealEstateAdapter.Re
 
             item.setOnClickListener(v -> {
                 listener.onItemClick(realEstate);
-                notifyItemChanged(selectedPosition);
-                selectedPosition = getAdapterPosition();
-                notifyItemChanged(selectedPosition);
                 Utils.selectedRealEstate = realEstate.getId();
+                if (Utils.isTablet) {
+                    notifyDataSetChanged();
+                }
             });
         }
     }

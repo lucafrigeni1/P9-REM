@@ -37,7 +37,6 @@ public class RealEstateViewModelUnitTest {
     @Mock
     RealEstateDataRepository dataRepository;
     Executor executor;
-    Context context;
 
     List<RealEstate> realEstateList = new ArrayList<>();
 
@@ -58,7 +57,6 @@ public class RealEstateViewModelUnitTest {
     @Before
     public void setup(){
         MockitoAnnotations.initMocks(this);
-        context = mock(Context.class);
         viewModel = new RealEstateViewModel(dataRepository, executor);
     }
 
@@ -77,8 +75,8 @@ public class RealEstateViewModelUnitTest {
         MutableLiveData<List<RealEstate>> data = new MutableLiveData<>();
         data.postValue(realEstateList);
 
-        when(dataRepository.getRealEstateList(executor, context)).thenReturn(data);
-        viewModel.getRealEstateList(context)
+        when(dataRepository.getRealEstateList(executor)).thenReturn(data);
+        viewModel.getRealEstateList()
                 .observeForever(realEstates -> assertEquals(realEstates, realEstateList));
     }
 }

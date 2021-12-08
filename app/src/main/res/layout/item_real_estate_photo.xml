@@ -13,16 +13,26 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
 
+
+    <ImageView
+        android:id="@+id/background"
+        android:layout_width="0dp"
+        android:layout_height="15dp"
+        app:layout_constraintStart_toStartOf="@+id/item_photo"
+        app:layout_constraintEnd_toEndOf="@+id/item_photo"
+        app:layout_constraintBottom_toBottomOf="@+id/item_photo"
+        android:background="@color/colorPrimary50" />
+
     <TextView
         android:id="@+id/item_text_view"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintStart_toStartOf="@+id/item_photo"
-        app:layout_constraintBottom_toBottomOf="@+id/item_photo"
-        android:paddingVertical="10dp"
-        android:layout_marginStart="15dp"
-        android:textColor="@color/quantum_white_100"
-        android:textStyle="bold"/>
+        app:layout_constraintStart_toStartOf="@+id/background"
+        app:layout_constraintEnd_toEndOf="@+id/background"
+        app:layout_constraintBottom_toBottomOf="@+id/background"
+        app:layout_constraintTop_toTopOf="@+id/background"
+        android:textSize="10sp"
+        android:textColor="@color/quantum_white_100" />
 
     <ImageButton
         android:id="@+id/delete_button"

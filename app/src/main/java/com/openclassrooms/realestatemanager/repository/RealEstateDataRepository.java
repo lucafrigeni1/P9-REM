@@ -1,6 +1,5 @@
 package com.openclassrooms.realestatemanager.repository;
 
-import android.content.Context;
 import android.net.Uri;
 
 import androidx.lifecycle.LiveData;
@@ -33,11 +32,11 @@ public class RealEstateDataRepository {
         this.realEstateDAO = realEstateDAO;
     }
 
-    public LiveData<List<RealEstate>> getRealEstateList(Executor executor, Context context) {
+    public LiveData<List<RealEstate>> getRealEstateList(Executor executor) {
         MutableLiveData<List<RealEstate>> data = new MutableLiveData<>();
         executor.execute(() -> {
             data.postValue(realEstateDAO.getRealEstateList());
-            if (Utils.isNetworkAvailable(context)) {
+            if (Utils.isNetworkAvailable()) {
                 synchroniseWithFirebase(realEstateDAO.getRealEstateList(), executor, data);
             }
         });

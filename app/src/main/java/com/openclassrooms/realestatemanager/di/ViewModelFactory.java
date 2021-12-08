@@ -6,6 +6,8 @@ import androidx.lifecycle.ViewModelProvider;
 import com.openclassrooms.realestatemanager.repository.RealEstateDataRepository;
 import com.openclassrooms.realestatemanager.repository.RealEstateViewModel;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.concurrent.Executor;
 
 public class ViewModelFactory implements ViewModelProvider.Factory {
@@ -18,6 +20,7 @@ public class ViewModelFactory implements ViewModelProvider.Factory {
         this.executor = executor;
     }
 
+    @NotNull
     @Override
     public <T extends ViewModel> T create(Class<T> modelClass) {
         if (modelClass.isAssignableFrom(RealEstateViewModel.class)) {

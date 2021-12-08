@@ -123,6 +123,11 @@ public class CreateActivity extends AppCompatActivity {
         backButton.setOnClickListener(v -> quit());
     }
 
+    @Override
+    public void onBackPressed() {
+        quit();
+    }
+
     private void getRealEstate() {
         String id = getIntent().getStringExtra(EXTRA_REAL_ESTATE);
         if (id != null) realEstateViewModel.getRealEstate(id).observe(this, this::setView);
@@ -280,7 +285,7 @@ public class CreateActivity extends AppCompatActivity {
 
     @SuppressLint("NotifyDataSetChanged")
     private void addPhoto(Bitmap bitmap, Uri uri, boolean isMain) {
-        if (bitmap != null) uri = Utils.convertBitmapToUri(bitmap, this);
+        if (bitmap != null) uri = Utils.convertBitmapToUri(bitmap);
 
         realEstateViewModel.uploadImageInStorage(uri).observe(this, uuid -> {
             if (isMain) {
@@ -364,8 +369,8 @@ public class CreateActivity extends AppCompatActivity {
                 String city = String.valueOf(cityInput.getText());
                 String postalCode = String.valueOf(postalCodeInput.getText());
                 String country = String.valueOf(countryInput.getText());
-                double latitude = Utils.geolocate(this, (street + ", " + city)).getLatitude();
-                double longitude = Utils.geolocate(this, (street + ", " + city)).getLongitude();
+                double latitude = Utils.geolocate((street + ", " + city)).getLatitude();
+                double longitude = Utils.geolocate((street + ", " + city)).getLongitude();
 
                 if (realEstate != null && realEstate.isSold()) {
                     saleDate = realEstate.getSaleDate();
