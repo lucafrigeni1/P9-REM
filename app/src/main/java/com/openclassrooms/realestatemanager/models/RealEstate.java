@@ -81,6 +81,10 @@ public class RealEstate {
         this.estateAgent = estateAgent;
     }
 
+    public RealEstate(@NotNull String id){
+        this.id = id;
+    }
+
     @NotNull
     public String getId() {
         return id;

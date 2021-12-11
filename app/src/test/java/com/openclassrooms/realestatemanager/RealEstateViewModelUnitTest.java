@@ -76,7 +76,7 @@ public class RealEstateViewModelUnitTest {
         data.postValue(realEstateList);
 
         when(dataRepository.getRealEstateList(executor)).thenReturn(data);
-        viewModel.getRealEstateList()
+        viewModel.getRealEstateList(true)
                 .observeForever(realEstates -> assertEquals(realEstates, realEstateList));
     }
 }

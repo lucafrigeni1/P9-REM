@@ -111,7 +111,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
                             if (location != null) {
                                 latLng = new LatLng(location.getLatitude(), location.getLongitude());
                                 map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, DEFAULT_ZOOM));
-                                viewModel.getRealEstateList().observe(getViewLifecycleOwner(), this::setMarkers);
+                                viewModel.getRealEstateList(false).observe(getViewLifecycleOwner(), this::setMarkers);
                             } else
                                 Toast.makeText(this.getContext(), getString(R.string.error_location), Toast.LENGTH_SHORT).show();
                         }

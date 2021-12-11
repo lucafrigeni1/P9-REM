@@ -78,7 +78,6 @@ public class DetailFragment extends Fragment implements OnMapReadyCallback {
         super.onViewCreated(view, savedInstanceState);
         findViewById(view);
         setViewModel();
-
     }
 
     private void findViewById(View view) {
@@ -108,11 +107,6 @@ public class DetailFragment extends Fragment implements OnMapReadyCallback {
         this.viewModel = new ViewModelProvider(this, viewModelFactory).get( RealEstateViewModel.class);
     }
 
-    private void getRealEstate(){
-        assert getArguments() != null;
-        viewModel.getRealEstate((getArguments()).getString("id")).observe(getViewLifecycleOwner(), this::setView);
-    }
-
     @Override
     public void onMapReady(@NonNull GoogleMap googleMap) {
         map = googleMap;
@@ -122,9 +116,13 @@ public class DetailFragment extends Fragment implements OnMapReadyCallback {
         getRealEstate();
     }
 
+    private void getRealEstate(){
+        assert getArguments() != null;
+        viewModel.getRealEstate((getArguments()).getString("id")).observe(getViewLifecycleOwner(), this::setView);
+    }
+
     private void setView(RealEstate realEstate) {
         if (realEstate != null) {
-
             Glide.with(mainPhoto).load(Utils.setPhotoUrl(realEstate.getMainPhoto())).centerCrop().into(mainPhoto);
 
             type.setText(realEstate.getType());

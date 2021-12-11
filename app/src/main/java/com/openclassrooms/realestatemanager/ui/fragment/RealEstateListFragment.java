@@ -49,7 +49,7 @@ public class RealEstateListFragment extends Fragment {
         findViewById(view);
         setViewModel();
         setAddButton();
-        viewModel.getRealEstateList().observe(getViewLifecycleOwner(), this::setRealEstateList);
+        viewModel.getRealEstateList(false).observe(getViewLifecycleOwner(), this::setRealEstateList);
     }
 
     private void findViewById(View view) {
@@ -74,6 +74,7 @@ public class RealEstateListFragment extends Fragment {
         recyclerView.setAdapter(realEstateAdapter);
 
         if (realEstateList.isEmpty()) emptyList.setVisibility(View.VISIBLE);
+        else emptyList.setVisibility(View.GONE);
     }
 
     private void setAddButton() {

@@ -1,12 +1,14 @@
 package com.openclassrooms.realestatemanager.repository;
 
 import android.net.Uri;
+import android.util.Log;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Transformations;
 import androidx.lifecycle.ViewModel;
 
+import com.google.gson.Gson;
 import com.openclassrooms.realestatemanager.models.QueryFilter;
 import com.openclassrooms.realestatemanager.models.RealEstate;
 
@@ -33,8 +35,11 @@ public class RealEstateViewModel extends ViewModel {
         this.executor = executor;
     }
 
-    public LiveData<List<RealEstate>> getRealEstateList() {
-        return realEstateListLiveData;
+    public LiveData<List<RealEstate>> getRealEstateList(boolean isForSettings) {
+        if (isForSettings){
+            return realEstateDataRepository.getRealEstateList(executor);
+        } else
+            return realEstateListLiveData;
     }
 
     public void refresh(){

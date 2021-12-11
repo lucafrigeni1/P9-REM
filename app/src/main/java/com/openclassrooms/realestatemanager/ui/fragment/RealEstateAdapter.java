@@ -1,5 +1,6 @@
 package com.openclassrooms.realestatemanager.ui.fragment;
 
+import android.annotation.SuppressLint;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -72,6 +73,7 @@ public class RealEstateAdapter extends RecyclerView.Adapter<RealEstateAdapter.Re
             price = itemView.findViewById(R.id.real_estate_price);
         }
 
+        @SuppressLint("NotifyDataSetChanged")
         public void bind(RealEstate realEstate, OnItemClickListener listener) {
             Glide.with(picture).load(Utils.setPhotoUrl(realEstate.getMainPhoto())).centerCrop().into(picture);
             type.setText(realEstate.getType());

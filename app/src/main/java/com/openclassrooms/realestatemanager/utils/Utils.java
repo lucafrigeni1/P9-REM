@@ -65,8 +65,8 @@ public class Utils {
 
     public static Address geolocate(String locationName) {
         Address address = null;
-        Geocoder geocoder =
-                new Geocoder(App.getInstance().getApplicationContext(), Locale.getDefault());
+        Geocoder geocoder = new Geocoder(
+                App.getInstance().getApplicationContext(), Locale.getDefault());
         try {
             List<Address> addressList =
                     geocoder.getFromLocationName(locationName, 1);

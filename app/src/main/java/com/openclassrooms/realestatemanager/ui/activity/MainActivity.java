@@ -90,7 +90,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         setViewModel();
         initFragment();
         getRealEstates();
-        setFilterButton();
         setDetailFragmentBackButton();
         viewModel.refresh();
     }
@@ -127,7 +126,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     private void getRealEstates() {
-        viewModel.getRealEstateList().observe(this, this::setFilterBottomSheet);
+        viewModel.getRealEstateList(true).observe(this, this::setFilterBottomSheet);
     }
 
     private void setFilterBottomSheet(List<RealEstate> realEstatesList) {
@@ -148,6 +147,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             FiltersUtils.setSlider(roomsSlider, minRoomsFilter, maxRoomsFilter, true, false);
             FiltersUtils.setSlider(bathroomsSlider, minBathRoomsFilter, maxBathRoomsFilter, true, false);
             FiltersUtils.setSlider(bedroomsSlider, minBedRoomsFilter, maxBedRoomsFilter, true, false);
+
+            setFilterButton();
         }
 
         FiltersUtils.setTypeFilter(typeFilter);
@@ -169,6 +170,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 findViewById(R.id.fragment_container2).setVisibility(View.GONE);
                 nothingSelected.setVisibility(View.VISIBLE);
             }
+            getRealEstates();
         });
     }
 
@@ -210,18 +212,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @SuppressLint("StringFormatMatches")
     private void setChipGroup(List<String> pointsOfInterestList) {
         topChipGroup.removeAllViews();
-
-        Chip clearChip = new Chip(this);
-        clearChip.setText(getString(R.string.clear));
-        clearChip.setCloseIconVisible(true);
-        clearChip.setChipBackgroundColorResource(R.color.colorPrimary400);
-        clearChip.setTextColor(getResources().getColor(R.color.colorPrimary800));
-        topChipGroup.addView(clearChip);
-
-        clearChip.setOnClickListener(v -> {
-            viewModel.refresh();
-            topChipGroup.removeAllViews();
-        });
+        setFilterClearChip();
 
         if (minPriceFilter != queryFilter.getMinPrice()) {
             if (Utils.isConvertedInEuro) {
@@ -299,6 +290,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
+    private void setFilterClearChip(){
+        Chip clearChip = new Chip(this);
+        clearChip.setText(getString(R.string.clear));
+        clearChip.setCloseIconVisible(true);
+        clearChip.setChipBackgroundColorResource(R.color.colorPrimary400);
+        clearChip.setTextColor(getResources().getColor(R.color.colorPrimary800));
+        topChipGroup.addView(clearChip);
+
+        clearChip.setOnClickListener(v -> {
+            viewModel.refresh();
+            topChipGroup.removeAllViews();
+        });
+    }
+
     private void setTopNavigation() {
         setSupportActionBar(topAppBar);
 
@@ -367,8 +372,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         mapsFragment = new MapsFragment();
         detailFragment = new DetailFragment();
 
-
-        //
         if (Utils.selectedRealEstate != null) {
             if (Utils.isTablet){
                 if (Utils.wasMapsFragmentShown) {
@@ -376,8 +379,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     bottomNavigationView.setSelectedItemId(R.id.map);
                 } else setFragment(listFragment);
             }
+            launchDetailFragment(new RealEstate(Utils.selectedRealEstate));
 
-            viewModel.getRealEstate(Utils.selectedRealEstate).observe(this, this::launchDetailFragment);
         } else if (Utils.wasMapsFragmentShown){
             setFragment(mapsFragment);
             bottomNavigationView.setSelectedItemId(R.id.map);
@@ -435,7 +438,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         } else if (mapsFragment.isVisible()){
             setFragment(listFragment);
             bottomNavigationView.setSelectedItemId(R.id.list);
-        } else
-            super.onBackPressed();
+        }
     }
 }
