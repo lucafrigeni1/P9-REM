@@ -151,7 +151,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             setFilterButton();
         }
 
-        FiltersUtils.setTypeFilter(typeFilter);
+        FiltersUtils.setTypeFilter(this, typeFilter);
         cityFilter.getEditableText().clear();
         soldFilter.setChecked(false);
 
@@ -166,7 +166,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             getFilteredValues();
             setQueryFilter(queryFilter);
             if (Utils.isTablet){
-                Utils.selectedRealEstate = null;
+                Utils.selectedRealEstate = -1;
                 findViewById(R.id.fragment_container2).setVisibility(View.GONE);
                 nothingSelected.setVisibility(View.VISIBLE);
             }
@@ -339,8 +339,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             case R.id.logout:
                 AuthUI.getInstance().signOut(this).addOnSuccessListener(this, aVoid -> {
                     finish();
-                    Intent intent = new Intent(this, AuthenticationActivity.class);
-                    startActivity(intent);
+                    startActivity(new Intent(this, AuthenticationActivity.class));
                 });
                 break;
         }
@@ -372,7 +371,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         mapsFragment = new MapsFragment();
         detailFragment = new DetailFragment();
 
-        if (Utils.selectedRealEstate != null) {
+        if (Utils.selectedRealEstate != -1) {
             if (Utils.isTablet){
                 if (Utils.wasMapsFragmentShown) {
                     setFragment(mapsFragment);
@@ -414,7 +413,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     private void closeDetailFragment() {
-        Utils.selectedRealEstate = null;
+        Utils.selectedRealEstate = -1;
 
         if (Utils.wasMapsFragmentShown){
             setFragment(mapsFragment);

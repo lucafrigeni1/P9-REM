@@ -7,6 +7,7 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
@@ -27,18 +28,18 @@ import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.textfield.TextInputEditText;
 import com.openclassrooms.realestatemanager.Notifications;
 import com.openclassrooms.realestatemanager.R;
-import com.openclassrooms.realestatemanager.utils.Utils;
 import com.openclassrooms.realestatemanager.di.Injections;
 import com.openclassrooms.realestatemanager.di.ViewModelFactory;
 import com.openclassrooms.realestatemanager.models.RealEstate;
 import com.openclassrooms.realestatemanager.models.RoomsPhotos;
 import com.openclassrooms.realestatemanager.repository.RealEstateViewModel;
 import com.openclassrooms.realestatemanager.ui.fragment.RoomsPhotosAdapter;
+import com.openclassrooms.realestatemanager.utils.Utils;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.UUID;
+import java.util.concurrent.ThreadLocalRandom;
 
 import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.EasyPermissions;
@@ -129,8 +130,8 @@ public class CreateActivity extends AppCompatActivity {
     }
 
     private void getRealEstate() {
-        String id = getIntent().getStringExtra(EXTRA_REAL_ESTATE);
-        if (id != null) realEstateViewModel.getRealEstate(id).observe(this, this::setView);
+        long id = getIntent().getLongExtra(EXTRA_REAL_ESTATE, 0);
+        if (id != 0) realEstateViewModel.getRealEstate(id).observe(this, this::setView);
         else setView(null);
     }
 
@@ -215,8 +216,7 @@ public class CreateActivity extends AppCompatActivity {
         if (!EasyPermissions.hasPermissions(this, CAMERA_PERMS)) {
             EasyPermissions.requestPermissions(this, "a", RC_MAIN_CAMERA, CAMERA_PERMS);
         } else {
-            Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-            startActivityForResult(intent, RC_MAIN_CAMERA);
+            startActivityForResult(new Intent(MediaStore.ACTION_IMAGE_CAPTURE), RC_MAIN_CAMERA);
         }
     }
 
@@ -225,8 +225,10 @@ public class CreateActivity extends AppCompatActivity {
         if (!EasyPermissions.hasPermissions(this, STORAGE_PERMS)) {
             EasyPermissions.requestPermissions(this, "b", RC_MAIN_FILE, STORAGE_PERMS);
         } else {
-            Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-            startActivityForResult(intent, RC_MAIN_FILE);
+            startActivityForResult(
+                    new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI),
+                    RC_MAIN_FILE
+            );
         }
     }
 
@@ -236,8 +238,7 @@ public class CreateActivity extends AppCompatActivity {
             EasyPermissions.requestPermissions(this, "a", RC_ROOM_CAMERA, CAMERA_PERMS);
         } else {
             if (!String.valueOf(roomPhotoDescriptionInput.getText()).isEmpty()) {
-                Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                startActivityForResult(intent, RC_ROOM_CAMERA);
+                startActivityForResult(new Intent(MediaStore.ACTION_IMAGE_CAPTURE), RC_ROOM_CAMERA);
             } else
                 Toast.makeText(this, R.string.rooms_photo_error, Toast.LENGTH_SHORT).show();
         }
@@ -249,8 +250,10 @@ public class CreateActivity extends AppCompatActivity {
             EasyPermissions.requestPermissions(this, "b", RC_ROOM_FILE, STORAGE_PERMS);
         } else {
             if (!String.valueOf(roomPhotoDescriptionInput.getText()).isEmpty()) {
-                Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                startActivityForResult(intent, RC_ROOM_FILE);
+                startActivityForResult(
+                        new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI),
+                        RC_ROOM_FILE
+                );
             } else
                 Toast.makeText(this, R.string.rooms_photo_error, Toast.LENGTH_SHORT).show();
         }
@@ -327,11 +330,11 @@ public class CreateActivity extends AppCompatActivity {
     }
 
     private void setValidationButton(RealEstate realEstate) {
-        String id;
+        long id;
         String recordDate;
 
         if (realEstate == null) {
-            id = UUID.randomUUID().toString();
+            id = ThreadLocalRandom.current().nextLong(0, 999999999);
             recordDate = Utils.getTodayDate();
             isAlreadyCreate = false;
         } else {
@@ -341,84 +344,84 @@ public class CreateActivity extends AppCompatActivity {
             isAlreadyCreate = true;
         }
 
+
         validationButton.setOnClickListener(v -> {
-            if (String.valueOf(typeInput.getText()).equals("")
-                    || String.valueOf(descriptionInput.getText()).equals("")
-                    || mainPicture == null
-                    || String.valueOf(priceInput.getText()).equals("")
-                    || String.valueOf(surfaceInput.getText()).equals("")
-                    || roomsPhotosList.size() == 0
-                    || String.valueOf(roomsInput.getText()).equals("")
-                    || String.valueOf(bathroomsInput.getText()).equals("")
-                    || String.valueOf(bedroomsInput.getText()).equals("")
-                    || String.valueOf(streetInput.getText()).equals("")
-                    || String.valueOf(cityInput.getText()).equals("")
-                    || String.valueOf(postalCodeInput.getText()).equals("")
-                    || String.valueOf(countryInput.getText()).equals("")
-            ) {
-                Toast.makeText(this, R.string.empty_fields, Toast.LENGTH_LONG).show();
-            } else {
-                String type = String.valueOf(typeInput.getText());
-                String description = String.valueOf(descriptionInput.getText());
-                int dollarPrice = Integer.parseInt(String.valueOf(priceInput.getText()));
-                double surface = Double.parseDouble(String.valueOf(surfaceInput.getText()));
-                int rooms = Integer.parseInt(String.valueOf(roomsInput.getText()));
-                int bathrooms = Integer.parseInt(String.valueOf(bathroomsInput.getText()));
-                int bedrooms = Integer.parseInt(String.valueOf(bedroomsInput.getText()));
-                String street = String.valueOf(streetInput.getText());
-                String city = String.valueOf(cityInput.getText());
-                String postalCode = String.valueOf(postalCodeInput.getText());
-                String country = String.valueOf(countryInput.getText());
-                double latitude = Utils.geolocate((street + ", " + city)).getLatitude();
-                double longitude = Utils.geolocate((street + ", " + city)).getLongitude();
-
-                if (realEstate != null && realEstate.isSold()) {
-                    saleDate = realEstate.getSaleDate();
-                    isSold = realEstate.isSold();
-                } else if (realEstate != null && soldCheckBox.isChecked()) {
-                    saleDate = Utils.getTodayDate();
-                    isSold = true;
+            if (Utils.isNetworkAvailable()) {
+                if (String.valueOf(typeInput.getText()).equals("")
+                        || String.valueOf(descriptionInput.getText()).equals("")
+                        || mainPicture == null
+                        || String.valueOf(priceInput.getText()).equals("")
+                        || String.valueOf(surfaceInput.getText()).equals("")
+                        || roomsPhotosList.size() == 0
+                        || String.valueOf(roomsInput.getText()).equals("")
+                        || String.valueOf(bathroomsInput.getText()).equals("")
+                        || String.valueOf(bedroomsInput.getText()).equals("")
+                        || String.valueOf(streetInput.getText()).equals("")
+                        || String.valueOf(cityInput.getText()).equals("")
+                        || String.valueOf(postalCodeInput.getText()).equals("")
+                        || String.valueOf(countryInput.getText()).equals("")
+                ) {
+                    Toast.makeText(this, R.string.empty_fields, Toast.LENGTH_LONG).show();
                 } else {
-                    isSold = false;
-                    saleDate = "";
-                }
+                    String type = String.valueOf(typeInput.getText());
+                    String description = String.valueOf(descriptionInput.getText());
+                    int dollarPrice = Integer.parseInt(String.valueOf(priceInput.getText()));
+                    double surface = Double.parseDouble(String.valueOf(surfaceInput.getText()));
+                    int rooms = Integer.parseInt(String.valueOf(roomsInput.getText()));
+                    int bathrooms = Integer.parseInt(String.valueOf(bathroomsInput.getText()));
+                    int bedrooms = Integer.parseInt(String.valueOf(bedroomsInput.getText()));
+                    String street = String.valueOf(streetInput.getText());
+                    String city = String.valueOf(cityInput.getText());
+                    String postalCode = String.valueOf(postalCodeInput.getText());
+                    String country = String.valueOf(countryInput.getText());
 
-                if (latitude != 0) {
-                    RealEstate newRealEstate = new RealEstate.Builder(id)
-                            .type(type)
-                            .descriptions(description)
-                            .mainPhoto(mainPicture)
-                            .dollarPrice(dollarPrice)
-                            .euroPrice(Utils.convertDollarToEuro(dollarPrice))
-                            .isSold(isSold)
-                            .surface(surface)
-                            .roomsPhotosList(roomsPhotosList)
-                            .rooms(rooms)
-                            .bathrooms(bathrooms)
-                            .bedrooms(bedrooms)
-                            .pointsOfInterest(pointsOfInterestList)
-                            .street(street)
-                            .city(city)
-                            .postalCode(postalCode)
-                            .country(country)
-                            .latitude(latitude)
-                            .longitude(longitude)
-                            .recordDate(recordDate)
-                            .saleDate(saleDate)
-                            .estateAgent(Utils.getFirebaseUser().getDisplayName())
-                            .build();
-                    realEstateViewModel.createRealEstate(newRealEstate);
-                    sendNotification();
-                    quit();
-                } else Toast.makeText(this, R.string.adress_error, Toast.LENGTH_LONG).show();
-            }
+                    if (realEstate != null && realEstate.isSold()) {
+                        saleDate = realEstate.getSaleDate();
+                        isSold = realEstate.isSold();
+                    } else if (realEstate != null && soldCheckBox.isChecked()) {
+                        saleDate = Utils.getTodayDate();
+                        isSold = true;
+                    } else {
+                        isSold = false;
+                        saleDate = "";
+                    }
+
+                    if (Utils.geolocate((street + ", " + city)) != null) {
+                        RealEstate newRealEstate = new RealEstate.Builder(id)
+                                .type(type)
+                                .descriptions(description)
+                                .mainPhoto(mainPicture)
+                                .dollarPrice(dollarPrice)
+                                .euroPrice(Utils.convertDollarToEuro(dollarPrice))
+                                .isSold(isSold)
+                                .surface(surface)
+                                .roomsPhotosList(roomsPhotosList)
+                                .rooms(rooms)
+                                .bathrooms(bathrooms)
+                                .bedrooms(bedrooms)
+                                .pointsOfInterest(pointsOfInterestList)
+                                .street(street)
+                                .city(city)
+                                .postalCode(postalCode)
+                                .country(country)
+                                .latitude(Utils.geolocate((street + ", " + city)).getLatitude())
+                                .longitude(Utils.geolocate((street + ", " + city)).getLongitude())
+                                .recordDate(recordDate)
+                                .saleDate(saleDate)
+                                .estateAgent(Utils.getFirebaseUser().getDisplayName())
+                                .build();
+                        realEstateViewModel.createRealEstate(newRealEstate);
+                        sendNotification();
+                        quit();
+                    } else Toast.makeText(this, R.string.adress_error, Toast.LENGTH_LONG).show();
+                }
+            } else Toast.makeText(this, R.string.error_no_internet, Toast.LENGTH_LONG).show();
         });
     }
 
     public void quit() {
         finish();
-        Intent intent = new Intent(this.getApplicationContext(), MainActivity.class);
-        startActivity(intent);
+        startActivity(new Intent(this.getApplicationContext(), MainActivity.class));
     }
 
     public void sendNotification() {

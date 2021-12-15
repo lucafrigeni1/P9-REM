@@ -31,14 +31,13 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.openclassrooms.realestatemanager.R;
-import com.openclassrooms.realestatemanager.utils.Utils;
 import com.openclassrooms.realestatemanager.di.Injections;
 import com.openclassrooms.realestatemanager.di.ViewModelFactory;
 import com.openclassrooms.realestatemanager.models.RealEstate;
 import com.openclassrooms.realestatemanager.repository.RealEstateViewModel;
 import com.openclassrooms.realestatemanager.ui.activity.MainActivity;
+import com.openclassrooms.realestatemanager.utils.Utils;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -101,24 +100,21 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
     private void getDeviceLocation() {
         getLocationPermission();
         try {
-            if (Utils.isNetworkAvailable()) {
-                if (locationPermissionGranted) {
-                    map.setMyLocationEnabled(true);
-                    Task<Location> locationResult = fusedLocationProviderClient.getLastLocation();
-                    locationResult.addOnCompleteListener(this.requireActivity(), task -> {
-                        if (task.isSuccessful()) {
-                            location = task.getResult();
-                            if (location != null) {
-                                latLng = new LatLng(location.getLatitude(), location.getLongitude());
-                                map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, DEFAULT_ZOOM));
-                                viewModel.getRealEstateList(false).observe(getViewLifecycleOwner(), this::setMarkers);
-                            } else
-                                Toast.makeText(this.getContext(), getString(R.string.error_location), Toast.LENGTH_SHORT).show();
-                        }
-                    });
-                }
-            } else
-                Toast.makeText(this.getContext(), getString(R.string.error_no_internet), Toast.LENGTH_LONG).show();
+            if (locationPermissionGranted) {
+                map.setMyLocationEnabled(true);
+                Task<Location> locationResult = fusedLocationProviderClient.getLastLocation();
+                locationResult.addOnCompleteListener(this.requireActivity(), task -> {
+                    if (task.isSuccessful()) {
+                        location = task.getResult();
+                        if (location != null) {
+                            latLng = new LatLng(location.getLatitude(), location.getLongitude());
+                            map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, DEFAULT_ZOOM));
+                            viewModel.getRealEstateList(false).observe(getViewLifecycleOwner(), this::setMarkers);
+                        } else
+                            Toast.makeText(this.getContext(), getString(R.string.error_location), Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
         } catch (SecurityException e) {
             Log.e("Exception: %s", e.getMessage(), e);
         }
@@ -149,10 +145,8 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
                         bm = Utils.getBitmapFromVectorDrawable(R.drawable.ic_baseline_place_green_24);
                     }
 
-                    LatLng latLng = new LatLng(realEstate.getLatitude(), realEstate.getLongitude());
-
                     map.addMarker(new MarkerOptions()
-                            .position(latLng)
+                            .position(new LatLng(realEstate.getLatitude(), realEstate.getLongitude()))
                             .icon(BitmapDescriptorFactory.fromBitmap(bm))
                             .title(realEstate.getStreet())
                     );

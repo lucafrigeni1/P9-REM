@@ -45,7 +45,7 @@ public class RealEstateAdapter extends RecyclerView.Adapter<RealEstateAdapter.Re
     @Override
     public void onBindViewHolder(@NonNull RealEstateViewHolder holder, int position) {
         RealEstate realEstate = realEstateList.get(position);
-        if (realEstate.getId().equals(Utils.selectedRealEstate)) {
+        if (realEstate.getId() == Utils.selectedRealEstate) {
             holder.item.setBackgroundResource(R.color.colorPrimary700);
         } else {
             holder.item.setBackgroundResource(R.color.colorPrimary900);
@@ -93,9 +93,7 @@ public class RealEstateAdapter extends RecyclerView.Adapter<RealEstateAdapter.Re
             item.setOnClickListener(v -> {
                 listener.onItemClick(realEstate);
                 Utils.selectedRealEstate = realEstate.getId();
-                if (Utils.isTablet) {
-                    notifyDataSetChanged();
-                }
+                notifyDataSetChanged();
             });
         }
     }

@@ -1,15 +1,11 @@
 package com.openclassrooms.realestatemanager;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-
-import android.content.Context;
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
 import androidx.lifecycle.MutableLiveData;
 
-import com.openclassrooms.realestatemanager.models.QueryFilter;
 import com.openclassrooms.realestatemanager.models.RealEstate;
 import com.openclassrooms.realestatemanager.repository.RealEstateDataRepository;
 import com.openclassrooms.realestatemanager.repository.RealEstateViewModel;
@@ -40,7 +36,7 @@ public class RealEstateViewModelUnitTest {
 
     List<RealEstate> realEstateList = new ArrayList<>();
 
-    RealEstate realEstateTest = new RealEstate.Builder("test")
+    RealEstate realEstateTest = new RealEstate.Builder(0)
             .type("HOUSE")
             .descriptions("description")
             .mainPhoto("mainPicture")
@@ -65,8 +61,8 @@ public class RealEstateViewModelUnitTest {
         MutableLiveData<RealEstate> data = new MutableLiveData<>();
         data.postValue(realEstateTest);
 
-        when(dataRepository.getRealEstate("test")).thenReturn(data);
-        viewModel.getRealEstate("test").observeForever(realEstate -> assertEquals(realEstate, realEstateTest));
+        when(dataRepository.getRealEstate(0)).thenReturn(data);
+        viewModel.getRealEstate(0).observeForever(realEstate -> assertEquals(realEstate, realEstateTest));
     }
 
     @Test

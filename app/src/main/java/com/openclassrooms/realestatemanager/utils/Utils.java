@@ -12,6 +12,7 @@ import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.provider.MediaStore;
+import android.util.Log;
 
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.drawable.DrawableCompat;
@@ -36,7 +37,7 @@ public class Utils {
     public static LatLng latLng;
     public static boolean isConvertedInEuro;
     public static boolean wasMapsFragmentShown;
-    public static String selectedRealEstate;
+    public static long selectedRealEstate = -1;
 
     public static FirebaseUser getFirebaseUser() {
         return FirebaseAuth.getInstance().getCurrentUser();
@@ -68,8 +69,7 @@ public class Utils {
         Geocoder geocoder = new Geocoder(
                 App.getInstance().getApplicationContext(), Locale.getDefault());
         try {
-            List<Address> addressList =
-                    geocoder.getFromLocationName(locationName, 1);
+            List<Address> addressList = geocoder.getFromLocationName(locationName, 1);
             if (addressList.size() > 0) {
                 address = addressList.get(0);
             }

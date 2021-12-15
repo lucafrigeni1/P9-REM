@@ -22,6 +22,7 @@ public class ViewModelFactory implements ViewModelProvider.Factory {
 
     @NotNull
     @Override
+    @SuppressWarnings("unchecked")
     public <T extends ViewModel> T create(Class<T> modelClass) {
         if (modelClass.isAssignableFrom(RealEstateViewModel.class)) {
             return (T) new RealEstateViewModel(realEstateDataRepository, executor);

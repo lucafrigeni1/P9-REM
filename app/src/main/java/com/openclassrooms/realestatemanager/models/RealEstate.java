@@ -1,18 +1,8 @@
 package com.openclassrooms.realestatemanager.models;
 
-import android.content.ContentValues;
-
-import androidx.annotation.NonNull;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-
-import org.jetbrains.annotations.NotNull;
-
-import java.lang.reflect.Type;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
@@ -20,8 +10,7 @@ import java.util.List;
 public class RealEstate {
 
     @PrimaryKey()
-    @NonNull
-    String id;
+    long id;
     String type, descriptions;
     String mainPhoto;
     int dollarPrice, euroPrice;
@@ -35,7 +24,7 @@ public class RealEstate {
     String recordDate, saleDate;
     String estateAgent;
 
-    public RealEstate(@NotNull String id,
+    public RealEstate(long id,
                       String type,
                       String descriptions,
                       String mainPhoto,
@@ -81,16 +70,16 @@ public class RealEstate {
         this.estateAgent = estateAgent;
     }
 
-    public RealEstate(@NotNull String id){
+    public RealEstate(long id){
         this.id = id;
     }
 
-    @NotNull
-    public String getId() {
+
+    public long getId() {
         return id;
     }
 
-    public void setId(@NotNull String id) {
+    public void setId(long id) {
         this.id = id;
     }
 
@@ -263,7 +252,7 @@ public class RealEstate {
     }
 
     public static class Builder {
-        String id;
+        long id;
         String type, descriptions;
         String mainPhoto;
         int dollarPrice;
@@ -278,7 +267,7 @@ public class RealEstate {
         String recordDate, saleDate;
         String estateAgent;
 
-        public Builder(String id) {
+        public Builder(long id) {
             this.id = id;
         }
 
@@ -450,40 +439,5 @@ public class RealEstate {
         public int compare(RealEstate o1, RealEstate o2) {
             return (o1.getBedrooms() - o2.getBedrooms());
         }
-    }
-
-    public static RealEstate fromContentValues(ContentValues value){
-        final RealEstate realEstate = new RealEstate();
-        if (value.containsKey("id")) realEstate.setId(value.getAsString("id"));
-        if (value.containsKey("type")) realEstate.setType(value.getAsString("type"));
-        if (value.containsKey("descriptions")) realEstate.setDescriptions(value.getAsString("descriptions"));
-        if (value.containsKey("mainPhoto")) realEstate.setMainPhoto(value.getAsString("mainPhoto"));
-        if (value.containsKey("dollarPrice")) realEstate.setDollarPrice(value.getAsInteger("dollarPrice"));
-        if (value.containsKey("euroPrice")) realEstate.setEuroPrice(value.getAsInteger("euroPrice"));
-        if (value.containsKey("isSold")) realEstate.setSold(value.getAsBoolean("isSold"));
-        if (value.containsKey("surface")) realEstate.setSurface(value.getAsDouble("surface"));
-        if (value.containsKey("roomsPhotosList")){
-            Gson gson = new Gson();
-            Type listType = new TypeToken<List<String>>() {}.getType();
-            realEstate.setRoomsPhotosList(
-                    gson.fromJson(value.getAsString("roomsPhotosList"), listType)
-            );
-        }
-        if (value.containsKey("rooms")) realEstate.setRooms(value.getAsInteger("rooms"));
-        if (value.containsKey("bathrooms")) realEstate.setBathrooms(value.getAsInteger("bathrooms"));
-        if (value.containsKey("bedrooms")) realEstate.setBedrooms(value.getAsInteger("bedrooms"));
-        if (value.containsKey("pointsOfInterest")) {
-            realEstate.setPointsOfInterest(Collections.singletonList(value.getAsString("pointsOfInterest")));
-        }
-        if (value.containsKey("street")) realEstate.setStreet(value.getAsString("street"));
-        if (value.containsKey("city")) realEstate.setCity(value.getAsString("city"));
-        if (value.containsKey("postalCode")) realEstate.setPostalCode(value.getAsString("postalCode"));
-        if (value.containsKey("country")) realEstate.setCountry(value.getAsString("country"));
-        if (value.containsKey("latitude")) realEstate.setLatitude(value.getAsDouble("latitude"));
-        if (value.containsKey("longitude")) realEstate.setLongitude(value.getAsDouble("longitude"));
-        if (value.containsKey("recordDate")) realEstate.setRecordDate(value.getAsString("recordDate"));
-        if (value.containsKey("saleDate")) realEstate.setSaleDate(value.getAsString("saleDate"));
-        if (value.containsKey("estateAgent")) realEstate.setEstateAgent(value.getAsString("estateAgent"));
-        return  realEstate;
     }
 }

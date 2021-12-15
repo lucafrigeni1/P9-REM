@@ -10,7 +10,18 @@ android {
         multiDexEnabled true
         versionCode 1
         versionName "1.0"
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+
+        // Specifies the application ID for the test APK.
+        //testApplicationId "com.test.openclassrooms.realestatemanager"
+        // Specifies the fully-qualified class name of the test instrumentation runner.
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        // If set to 'true', enables the instrumentation class to start and stop profiling.
+        // If set to false (default), profiling occurs the entire time the instrumentation
+        // class is running.
+        testHandleProfiling true
+        // If set to 'true', indicates that the Android system should run the instrumentation
+        // class as a functional test. The default value is 'false'
+        testFunctionalTest false
     }
     buildTypes {
         release {
@@ -57,12 +68,16 @@ dependencies {
 
     testImplementation "org.mockito:mockito-core:3.11.2"
     testImplementation "androidx.arch.core:core-testing:2.1.0"
-    testImplementation 'junit:junit:4.13.2'
     implementation 'androidx.test.ext:junit:1.1.3'
 
 
     androidTestImplementation 'com.android.support.test:rules:1.0.2'
-    androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-contrib:3.0.2'
+
+
+    testImplementation 'junit:junit:4.12'
+
+    androidTestImplementation 'com.android.support:support-annotations:24.0.0'
+    androidTestImplementation 'com.android.support.test:runner:0.5'
 }

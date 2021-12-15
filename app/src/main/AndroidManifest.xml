@@ -18,8 +18,8 @@
         android:theme="@style/AppTheme">
         
         <provider
-            android:authorities="com.openclassrooms.realestatemanager.ContentProvider"
-            android:name=".ContentProvider"
+            android:authorities="com.openclassrooms.realestatemanager.provider"
+            android:name=".provider.ContentProvider"
             android:exported="true"/>
 
         <meta-data

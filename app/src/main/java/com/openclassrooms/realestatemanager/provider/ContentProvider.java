@@ -1,14 +1,14 @@
-package com.openclassrooms.realestatemanager;
+package com.openclassrooms.realestatemanager.provider;
 
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.openclassrooms.realestatemanager.database.RealEstateDAO;
 import com.openclassrooms.realestatemanager.database.RealEstateManagerDataBase;
 import com.openclassrooms.realestatemanager.models.RealEstate;
 
@@ -27,7 +27,7 @@ public class ContentProvider extends android.content.ContentProvider {
    @Override
    public Cursor query(@NonNull Uri uri, @Nullable String[] projection, @Nullable String selection, @Nullable String[] selectionArgs, @Nullable String sortOrder) {
        if (getContext() != null){
-           String id = String.valueOf(ContentUris.parseId(uri));
+           long id = ContentUris.parseId(uri);
            final Cursor cursor = RealEstateManagerDataBase.getInstance(getContext()).realEstateDAO().getRealEstateWithCursor(id);
            cursor.setNotificationUri(getContext().getContentResolver(), uri);
            return cursor;
@@ -44,14 +44,7 @@ public class ContentProvider extends android.content.ContentProvider {
    @Nullable
    @Override
    public Uri insert(@NonNull Uri uri, @Nullable ContentValues values) {
-       if (getContext() != null){
-           final long id = RealEstateManagerDataBase.getInstance(getContext()).realEstateDAO().insertRealEstate(RealEstate.fromContentValues(values));
-           if (id != 0){
-               getContext().getContentResolver().notifyChange(uri, null);
-               return ContentUris.withAppendedId(uri, id);
-           }
-       }
-       throw new IllegalArgumentException("Failed to insert row into " + uri);
+       return null;
    }
 
    @Override

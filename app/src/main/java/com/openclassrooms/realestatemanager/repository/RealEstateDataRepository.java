@@ -1,6 +1,7 @@
 package com.openclassrooms.realestatemanager.repository;
 
 import android.net.Uri;
+import android.util.Log;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -87,12 +88,12 @@ public class RealEstateDataRepository {
         return data;
     }
 
-    public LiveData<RealEstate> getRealEstate(String id) {
+    public LiveData<RealEstate> getRealEstate(long id) {
         return this.realEstateDAO.getRealEstate(id);
     }
 
     public void createRealEstate(RealEstate realEstate) {
-        realEstateCollectionReference.document(realEstate.getId()).set(realEstate);
+        realEstateCollectionReference.document(String.valueOf(realEstate.getId())).set(realEstate);
         realEstateDAO.insertRealEstate(realEstate);
     }
 

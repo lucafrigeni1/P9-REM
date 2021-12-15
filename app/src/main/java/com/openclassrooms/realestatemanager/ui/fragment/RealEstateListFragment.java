@@ -80,10 +80,10 @@ public class RealEstateListFragment extends Fragment {
     private void setAddButton() {
         addButton.setOnClickListener(v -> {
             if (Utils.isNetworkAvailable()) {
-                Intent intent = new Intent(this.getContext(), CreateActivity.class);
-                startActivity(intent);
+                startActivity(new Intent(this.getContext(), CreateActivity.class));
             } else
-                Toast.makeText(this.getContext(), R.string.error_no_internet, Toast.LENGTH_LONG).show();
+                Toast.makeText(this.getContext(), R.string.error_no_internet,
+                        Toast.LENGTH_LONG).show();
         });
     }
 }

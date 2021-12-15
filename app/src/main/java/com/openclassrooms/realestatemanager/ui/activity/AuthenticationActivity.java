@@ -23,15 +23,17 @@ public class AuthenticationActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        activityLauncher();
-    }
 
-    private void activityLauncher() {
         if (Utils.getFirebaseUser() != null) {
             startMainActivity();
         } else {
             startSignInActivity();
         }
+    }
+
+    private void startMainActivity() {
+        startActivity(new Intent(this, MainActivity.class));
+        finish();
     }
 
     private void startSignInActivity() {
@@ -71,11 +73,5 @@ public class AuthenticationActivity extends AppCompatActivity {
                 }
             }
         }
-    }
-
-    private void startMainActivity() {
-        Intent intent = new Intent(this, MainActivity.class);
-        startActivity(intent);
-        finish();
     }
 }

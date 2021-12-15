@@ -52,10 +52,10 @@ public interface RealEstateDAO {
     );
 
     @Query("SELECT * FROM RealEstate WHERE id = :id")
-    LiveData<RealEstate> getRealEstate(String id);
+    LiveData<RealEstate> getRealEstate(long id);
 
     @Query("SELECT * FROM RealEstate WHERE id = :id")
-    Cursor getRealEstateWithCursor(String id);
+    Cursor getRealEstateWithCursor(long id);
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     long insertRealEstate(RealEstate realEstate);
